@@ -17,7 +17,7 @@ use App\Models\Field;
 use App\Models\Division;
 use App\Models\DivisionResult;
 use App\Models\PumpCategories;
-use App\Models\PumpSubCat;
+use App\Models\PumpSubcat;
 use App\Models\Pump;
 /**
  * Class StaffCrudController
