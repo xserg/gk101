@@ -145,8 +145,8 @@ class StaffCrudController extends CrudController
         CRUD::field('lastname')->label(__('validation.attributes.lastname'));
         CRUD::field('name')->label(__('validation.attributes.name'));
         CRUD::field('fathername')->label(__('validation.attributes.fathername'));
-        CRUD::field('role.rus_name')->label(__('validation.attributes.role_id'));
-        CRUD::field('division_group')->label(__('validation.attributes.division_group'));
+        //CRUD::field('role.rus_name')->label(__('validation.attributes.role_id'));
+        //CRUD::field('division_group')->label(__('validation.attributes.division_group'));
         CRUD::field('tabel_num')->label(__('validation.attributes.tabel_num'));
         CRUD::field('position')->label(__('validation.attributes.position'));
 
