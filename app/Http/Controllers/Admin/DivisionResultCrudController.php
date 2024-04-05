@@ -46,7 +46,7 @@ class DivisionResultCrudController extends CrudController
     {
         // set columns from db columns.
 
-        if (! $this->crud->getRequest()->has('order')){
+        if (!$this->crud->getRequest()->has('order') && !$this->crud->getRequest()->institution_id){
             $this->crud->orderBy('division_results.id');
         }
         if ($this->crud->getRequest()->has('file')){
@@ -69,7 +69,7 @@ class DivisionResultCrudController extends CrudController
 
         // Статистика по учереждению
         //if ($this->crud->getRequest()->has('institution_id')) {
-        if ($this->crud->getRequest()->institution_id) {  
+        if ($this->crud->getRequest()->institution_id) {
 
             $this->crud->query->select('division_id', 'year', 'month', 'institutions.name')
             ->selectRaw('round(sum(visit_rate)) sum_visit_rate')
@@ -84,7 +84,8 @@ class DivisionResultCrudController extends CrudController
             //, sum(retes_count) sum_retes_count, sum(no_worked_rates) sum_no_worked_rates, sum(pump_account) sum_pump_account'
             ->join('divisions', 'divisions.id', 'division_results.division_id')
             ->join('institutions', 'divisions.institution_id', 'institutions.id')
-            ->where('institution_id', $this->crud->getRequest()->institution_id)->groupby('institutions.id');
+            ->where('institution_id', $this->crud->getRequest()->institution_id)
+            ->groupby('institutions.id', 'month')->orderBy('month');
             CRUD::column('name')->label(__('validation.attributes.institution'));
             CRUD::column('sum_visit_rate')->label(__('validation.attributes.visit_rate'));
             CRUD::column('sum_visits')->label(__('validation.attributes.visits'));
