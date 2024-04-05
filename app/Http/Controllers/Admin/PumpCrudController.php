@@ -78,7 +78,8 @@ class PumpCrudController extends CrudController
             ->selectRaw('count(pump.id) as count, round(sum(total)) as sum')
             ->join('divisions', 'divisions.id', 'pump.division_id')
             ->join('institutions', 'divisions.institution_id', 'institutions.id')
-            ->where('institution_id', $this->crud->getRequest()->institution_id)->groupby('institutions.id');
+            ->where('institution_id', $this->crud->getRequest()->institution_id)
+            ->groupby('institutions.id', 'month')->orderBy('month');
             CRUD::column('name')->label(__('validation.attributes.institution'));
             CRUD::column('count')->label('Всего услуг');
             CRUD::column('sum')->label('Сумма');
