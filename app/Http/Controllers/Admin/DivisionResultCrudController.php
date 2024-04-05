@@ -68,7 +68,8 @@ class DivisionResultCrudController extends CrudController
         CRUD::column('month')->label(__('validation.attributes.month'));
 
         // Статистика по учереждению
-        if ($this->crud->getRequest()->has('institution_id')) {
+        //if ($this->crud->getRequest()->has('institution_id')) {
+        if ($this->crud->getRequest()->institution_id) {  
 
             $this->crud->query->select('division_id', 'year', 'month', 'institutions.name')
             ->selectRaw('round(sum(visit_rate)) sum_visit_rate')
