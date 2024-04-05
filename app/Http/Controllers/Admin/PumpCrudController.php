@@ -50,7 +50,7 @@ class PumpCrudController extends CrudController
         if ($this->crud->getRequest()->has('tabel_num')){
             CRUD::addClause('where', 'tabel_num', $this->crud->getRequest()->tabel_num);
         }
-        if ($this->crud->getRequest()->has('division_id')){
+        if ($this->crud->getRequest()->division_id){
             CRUD::addClause('where', 'division_id', $this->crud->getRequest()->division_id);
         }
         if ($month = $this->crud->getRequest()->month){
