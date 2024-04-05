@@ -198,7 +198,7 @@ class UploadController extends CrudController
   public function importSubCat($row, $allcat)
   {
       //$cat = PumpCategories::updateOrCreate(['name' => $row['name']], ['name' => $row['name']]);
-      $sub_cat = PumpSubCat::updateOrCreate(['name' => $row['pump_subcat_id']],
+      $sub_cat = PumpSubсat::updateOrCreate(['name' => $row['pump_subcat_id']],
        [
          'name' => $row['pump_subcat_id'],
          'code' => $row['code'],
