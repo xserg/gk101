@@ -55,7 +55,8 @@ class Field extends Model
     public function getFiles()
     {
       return ($this->podrazdelenia ?  'podrazdelenia,' : '')
-      . ($this->itog ? ' itog,'  : '') . ($this->pump ? ' pump' : '');
+      . ($this->itog ? ' itog,'  : '') . ($this->pump ? ' pump,' : '') 
+      . ($this->rabotniki ? ' rabotniki' : '');
     }
     /*
     |--------------------------------------------------------------------------

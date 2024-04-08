@@ -85,7 +85,9 @@ class UploadController extends CrudController
             }
             //print_r($field_nums);
             //print_r($res);
-            if ($type == 'pump') {
+            if ($type == 'rabotniki') {
+                $i = $this->saveRabotniki($res);
+            } else if ($type == 'pump') {
                 $i = $this->savePump($res);
             } else {
                 $i = $this->saveResult($res);
@@ -169,8 +171,6 @@ class UploadController extends CrudController
         }
         if ($error) {
             //echo $error;
-            //\Alert::error($error)->flash();
-            //\Alert::add('error', $error)->flash();
             return false;
         }
         return true;
@@ -245,6 +245,19 @@ class UploadController extends CrudController
     $i = 0;
     foreach ($res as $row) {
           $data_obj->csvRow($row);
+          $i++;
+    }
+    return $i;
+  }
+
+  public function saveRabotniki($res)
+  {
+    $i = 0;
+    foreach ($res as $row) {
+          Staff::updateOrCreate([
+            //'division_id' => $row['division_id'],
+            'tabel_num' => $row['tabel_num']
+          ], $row);
           $i++;
     }
     return $i;

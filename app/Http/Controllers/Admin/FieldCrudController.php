@@ -82,6 +82,7 @@ class FieldCrudController extends CrudController
         CRUD::field('podrazdelenia')->type('checkbox');
         CRUD::field('itog')->type('checkbox');
         CRUD::field('pump')->type('checkbox');
+        CRUD::field('rabotniki')->type('checkbox');
 
         CRUD::field('group');
 
