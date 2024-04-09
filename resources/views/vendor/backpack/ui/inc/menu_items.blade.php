@@ -29,8 +29,8 @@
   <x-backpack::menu-dropdown-item title="Загрузка" icon="la la-upload" :link="backpack_url('upload')" />
   <x-backpack::menu-dropdown-item title="Поля" icon="la la-question" :link="backpack_url('field')" />
   <x-backpack::menu-dropdown-item title="Файлы" icon="la la-question" :link="backpack_url('file')" />
-  <x-backpack::menu-dropdown-item title="Pump subcats" icon="la la-question" :link="backpack_url('pump-subcat')" />
-  <x-backpack::menu-dropdown-item title="Pump categories" icon="la la-question" :link="backpack_url('pump-categories')" />
+  <x-backpack::menu-dropdown-item title="Категории ПУМП" icon="la la-question" :link="backpack_url('pump-categories')" />
+  <x-backpack::menu-dropdown-item title="Подкатегории ПУМП" icon="la la-question" :link="backpack_url('pump-subcat')" />
 </x-backpack::menu-dropdown>
 @endif
 @if(backpack_user()->can('menu.staff') || backpack_user()->hasRole('admin'))
