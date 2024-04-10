@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Requests\AccountInfoRequest;
 use Backpack\CRUD\app\Http\Requests\ChangePasswordRequest;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
 
 class MyAccountController extends Controller
 {
@@ -26,6 +27,14 @@ class MyAccountController extends Controller
     {
         $this->data['title'] = trans('backpack::base.my_account');
         $this->data['user'] = $this->guard()->user();
+
+        $roles = $this->data['user']->getRoleNames()->toarray();
+        $all_roles = Role::all()->pluck('rus_name', 'name')->toarray();
+        $role_str = '';
+        foreach ($roles as $role) {
+            $role_str .= $all_roles[$role] . ', ';
+        }
+        $this->data['role_str'] = $role_str;
         return view('my_account', $this->data);
     }
 

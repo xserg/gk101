@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Models\Field;
 use App\Models\Division;
+use App\Models\Role;
 
 /**
  * Class DivisionResultCrudController
@@ -172,12 +173,11 @@ class DivisionResultCrudController extends CrudController
     {
         $user = request()->user();
         $roles = $user->getRoleNames()->toarray();
+        $all_roles = Role::all()->pluck('rus_name', 'id')->toarray();
+        $res_roles = array_keys(array_intersect($all_roles, $roles));
 
-        //CRUD::setFromDb();
         $fields = Field::where($this->crud->getCurrentEntry()->file, 1)->pluck('rus_name', 'field_name')->toarray();
-        //echo '<pre>';
-        //print_r($roles);
-        //print_r($fields);
+    
         CRUD::column('staff.lastname')->label(__('validation.attributes.lastname'));
         CRUD::column('staff.name')->label(__('validation.attributes.name'));
         CRUD::column('staff.fathername')->label(__('validation.attributes.fathername'));
@@ -185,7 +185,12 @@ class DivisionResultCrudController extends CrudController
         $common_fields = ['year', 'month', 'division_id', 'tabel_num'];
 
         foreach ($fields as $field => $label) {
-            if(in_array($field, $common_fields) || $user->can('division_results.' . $field)
+        //foreach ($fields as $field_arr) {
+          //print_r($field);
+            //$field = $field_arr['field_name'];
+            //$label = $field_arr['rus_name'];
+            if(in_array($field, $common_fields)
+            || $user->can('division_results.' . $field)
             || $user->hasRole('admin')) {
                 CRUD::column($field)->label($label);
             }

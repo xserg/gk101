@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\FieldRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
-use App\Models\Role;
+//use App\Models\Role;
+use App\Models\Field;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 /**
  * Class FieldCrudController
@@ -84,21 +87,35 @@ class FieldCrudController extends CrudController
         CRUD::field('pump')->type('checkbox');
         CRUD::field('rabotniki')->type('checkbox');
 
-        CRUD::field('group');
+        /*
+        for ($i = 1; $i < 6; $i++) {
+          CRUD::field('role_'.$i)->type('checkbox');
+        }
+        */
+        CRUD::field('group_id');
 
         $roles = Role::all()->pluck('rus_name', 'id')->toarray();
-
-
         //CRUD::field('role_1')->type('checkbox')->label($roles[$i]);
-        /*
+
         for ($i = 1; $i < 6; $i++) {
             CRUD::field('role_' . $i)->type('checkbox')->label($roles[$i]);
         }
-        */
-        /**
-         * Fields can be defined using the fluent syntax:
-         * - CRUD::field('price')->type('number');
-         */
+
+        Field::saving(function($entry) {
+            $permission = Permission::updateOrCreate(
+              ['name' => 'division_results.' . $entry->field_name],
+              ['name' => 'division_results.' . $entry->field_name],
+            );
+            for ($i = 1; $i < 6; $i++) {
+                $role = Role::find($i);
+                $role_name = 'role_' . $i;
+                if ($entry->$role_name) {
+                  $role->givePermissionTo($permission);
+                } else {
+                  $role->revokePermissionTo($permission);
+                }
+            }
+        });
     }
 
     /**

@@ -52,21 +52,30 @@
 
                 {!! csrf_field() !!}
 
-                <div class="card">
+                <div>
+                  @if ($user->staff)
+                    <b>{{ $user->staff->lastname . ' ' . $user->staff->name . ' ' . $user->staff->fathername }}</b></h3>
+                    @endif
+                  </div>
+                <div>{{ $role_str }}</div>
 
+                <div class="card">
+                  <div>
+                    @if ($user->staff)
+                      <b>{{ $user->staff->lastname . ' ' . $user->staff->name . ' ' . $user->staff->fathername }}</b></h3>
+                      @endif
+                    </div>
+                  <div>{{ $role_str }}</div>
                     <div class="card-header">
                         <h3 class="card-title">{{ trans('backpack::base.update_account_info') }}
-                          @if ($user->staff)
-                            <b>{{ $user->staff->lastname . ' ' . $user->staff->name . ' ' . $user->staff->fathername }}</b></h3>
-                              <a href="/admin/staff/?">
-                            @endif
                     </div>
 
                     <div class="card-body backpack-profile-form bold-labels">
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 @php
-                                    $label = trans('backpack::base.name');
+                                    //$label = trans('backpack::base.name');
+                                    $label = 'Табельный номер';
                                     $field = 'name';
                                 @endphp
                                 <label class="required">{{ $label }}</label>
