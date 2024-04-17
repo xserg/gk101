@@ -81,6 +81,7 @@ class FieldCrudController extends CrudController
         CRUD::field('field_name');
         CRUD::field('rus_name');
         CRUD::field('description');
+        CRUD::field('sort');
 
         CRUD::field('podrazdelenia')->type('checkbox');
         CRUD::field('itog')->type('checkbox');

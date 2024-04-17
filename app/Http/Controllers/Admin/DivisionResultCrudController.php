@@ -176,8 +176,9 @@ class DivisionResultCrudController extends CrudController
         $all_roles = Role::all()->pluck('rus_name', 'id')->toarray();
         $res_roles = array_keys(array_intersect($all_roles, $roles));
 
-        $fields = Field::where($this->crud->getCurrentEntry()->file, 1)->pluck('rus_name', 'field_name')->toarray();
-    
+        $fields = Field::where($this->crud->getCurrentEntry()->file, 1)->orderby('sort', 'desc')
+        ->pluck('rus_name', 'field_name')->toarray();
+
         CRUD::column('staff.lastname')->label(__('validation.attributes.lastname'));
         CRUD::column('staff.name')->label(__('validation.attributes.name'));
         CRUD::column('staff.fathername')->label(__('validation.attributes.fathername'));
