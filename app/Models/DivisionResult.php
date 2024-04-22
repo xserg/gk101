@@ -72,7 +72,8 @@ class DivisionResult extends Model
         'month' => $row['month'],
         'division_id' => $row['division_id'],
         'file' => $row['file'],
-        'tabel_num' => $row['tabel_num']
+        'tabel_num' => $row['tabel_num'],
+        'position' => $row['position'],
       ], $row);
 
       return;

@@ -101,6 +101,7 @@ class DivisionResultCrudController extends CrudController
             CRUD::column('division')->label(__('validation.attributes.division'));
             CRUD::column('staff.lastname')->label(__('validation.attributes.lastname'));
             CRUD::column('staff.name')->label(__('validation.attributes.name'));
+            CRUD::column('position')->label(__('validation.attributes.position'));
         }
 
         //CRUD::button('month')->stack('top')->view('crud::buttons.quick');
