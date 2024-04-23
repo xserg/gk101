@@ -178,7 +178,8 @@ class DivisionResultCrudController extends CrudController
         $res_roles = array_keys(array_intersect($all_roles, $roles));
 
         $fields = Field::where($this->crud->getCurrentEntry()->file, 1)->orderby('sort', 'desc')
-        ->pluck('rus_name', 'field_name')->toarray();
+        //->pluck('rus_name', 'field_name', 'description')
+        ->get()->toarray();
 
         CRUD::column('staff.lastname')->label(__('validation.attributes.lastname'));
         CRUD::column('staff.name')->label(__('validation.attributes.name'));
@@ -186,15 +187,22 @@ class DivisionResultCrudController extends CrudController
 
         $common_fields = ['year', 'month', 'division_id', 'tabel_num'];
 
-        foreach ($fields as $field => $label) {
-        //foreach ($fields as $field_arr) {
-          //print_r($field);
-            //$field = $field_arr['field_name'];
-            //$label = $field_arr['rus_name'];
+        //foreach ($fields as $field => $label) {
+        foreach ($fields as $field_arr) {
+
+            $field = $field_arr['field_name'];
+            $label = $field_arr['rus_name'];
+            $description = $field_arr['description'];
             if(in_array($field, $common_fields)
             || $user->can('division_results.' . $field)
             || $user->hasRole('admin')) {
-                CRUD::column($field)->label($label);
+                CRUD::column($field)->label($label . ($description ?
+                '</strong>
+                <div class="addPage-desc"><a class="addPage-desc__open" href="#hiddenDesc_' . $field . '" data-bs-toggle="collapse"><span class="addPage-desc__open-txt">Описание</span><span class="addPage-desc__open-icon icon">
+                    </a>
+                <div class="addPage-desc__hidden collapse" id="hiddenDesc_' . $field . '">
+                  <div class="addPage-desc__txt"><i>' . $description . '</i></div></div></div>'
+                : ''));
             }
         }
 
