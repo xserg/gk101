@@ -40,7 +40,8 @@ class UploadController extends CrudController
     //$request = $this->crud->validateRequest();
     $type = strtolower($_POST['type']);
     $str_arr = file($_FILES['file']['tmp_name']);
-    //$csv = array_map('str_getcsv', $str_arr);
+    $delete = $request->name;
+
     $csv = [];
     foreach ($str_arr as $str) {
         $csv[] = str_getcsv(iconv('CP1251', 'UTF-8', $str), ';');
@@ -85,11 +86,15 @@ class UploadController extends CrudController
             }
             //print_r($field_nums);
             //print_r($res);
+            $i = 0;
             if ($type == 'rabotniki') {
                 $i = $this->saveRabotniki($res);
             } else if ($type == 'pump') {
                 $i = $this->savePump($res);
             } else {
+                if ($delete) {
+                    DivisionResult::where('file', 'itog')->delete();
+                }
                 $i = $this->saveResult($res);
             }
             //exit;
@@ -131,6 +136,12 @@ class UploadController extends CrudController
           ]*/
         ],
     );
+
+      CRUD::field([
+        'name' => 'name',
+        'label' => 'Удалить данные',
+        'type' => 'checkbox',
+      ]);
 
       CRUD::field([
         'name' => 'file',
