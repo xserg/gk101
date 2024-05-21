@@ -179,7 +179,8 @@ class PumpCrudController extends CrudController
 
     protected function setupShowOperation()
     {
-        $user = request()->user();
+        //$user = request()->user();
+        $user = backpack_user();
         $fields = Field::where('pump', 1)->pluck('rus_name', 'field_name')->toarray();
         $common_fields = ['year', 'month', 'division_id', 'tabel_num'];
         CRUD::column('pumpsubcat')->label('Услуга');
