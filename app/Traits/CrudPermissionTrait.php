@@ -22,7 +22,8 @@ trait CrudPermissionTrait
      */
     public function setAccessUsingPermissions()
     {
-      $user = request()->user();
+      //$user = request()->user();
+      $user = backpack_user();
       if ($user->hasRole('admin')) {
             return;
       }
