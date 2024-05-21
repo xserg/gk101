@@ -34,7 +34,8 @@ class PumpCrudController extends CrudController
         CRUD::setEntityNameStrings('ПУМП', 'ПУМП');
         $this->setAccessUsingPermissions();
 
-        $user = request()->user();
+        //$user = request()->user();
+        $user = backpack_user();
         //CRUD::setHeading($user->staff->lastname . ' ' . $user->staff->name);
 
     }

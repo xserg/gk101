@@ -172,7 +172,8 @@ class DivisionResultCrudController extends CrudController
 
     protected function setupShowOperation()
     {
-        $user = request()->user();
+        //$user = request()->user();
+        $user = backpack_user();
         $roles = $user->getRoleNames()->toarray();
         $all_roles = Role::all()->pluck('rus_name', 'id')->toarray();
         $res_roles = array_keys(array_intersect($all_roles, $roles));
