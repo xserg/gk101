@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Models\Field;
 use App\Models\Division;
+use App\Models\Staff;
 
 /**
  * Class PumpCrudController
@@ -36,7 +37,7 @@ class PumpCrudController extends CrudController
 
         //$user = request()->user();
         $user = backpack_user();
-        //CRUD::setHeading($user->staff->lastname . ' ' . $user->staff->name);
+        //CRUD:: setHeading('ПУМП ' . $user->staff->lastname . ' ' . $user->staff->name);
 
     }
 
@@ -48,7 +49,11 @@ class PumpCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        if ($this->crud->getRequest()->has('tabel_num')){
+        if ($this->crud->getRequest()->has('tabel_num')) {
+            $pump_user = Staff::where('tabel_num', $this->crud->getRequest()->tabel_num)->first();
+            if ($pump_user) {
+                CRUD:: setHeading('ПУМП ' . $pump_user->lastname . ' ' . $pump_user->name);
+            }
             CRUD::addClause('where', 'tabel_num', $this->crud->getRequest()->tabel_num);
         }
         if ($this->crud->getRequest()->division_id){
@@ -133,6 +138,140 @@ class PumpCrudController extends CrudController
                 ]);
             }
             CRUD::removeAllButtons();
+
+      // Divisions stat ////////////////////////////////////////////////////
+        } else if ($this->crud->getRequest()->division_id) {
+
+          $this->crud->query->select(
+            'divisions.name',
+            'year', 'month', 'fio',
+            'total', 'pump_subcat_id', 'fio', 'tabel_num',
+            //'institutions.id as institution_id',
+            'division_id')
+          ->selectRaw('count(pump.id) as count, round(sum(total)) as sum')
+          ->join('divisions', 'divisions.id', 'pump.division_id')
+        //  ->join('institutions', 'divisions.institution_id', 'institutions.id')
+          ->where('division_id', $this->crud->getRequest()->division_id);
+
+          // Работники статистика
+          if ($this->crud->getRequest()->staff) {
+            $this->crud->query->select(
+              'year', 'month', 'fio',
+              'total', 'pump_subcat_id',
+              'division_id', 'tabel_num',
+              'pump_subcat.name as pump_subcat_name')
+              ->selectRaw('count(pump.id) as count, round(sum(total)) as sum');
+              $this->crud->query->join('pump_subcat', 'pump_subcat.id', '=', 'pump_subcat_id');
+              //$this->crud->query->where('tabel_num', $this->crud->getRequest()->tabel_num);
+              $this->crud->query->groupby('tabel_num', 'month');
+              //$this->crud->query->groupby('month', 'pump_subcat_id');
+              CRUD::column('fio')->label('fio');
+
+              CRUD::column('count')->label('Всего услуг')->orderable(true)
+              ->orderLogic(function ($query, $column, $columnDirection) {
+                  return $query->orderBy('count', $columnDirection);
+              });
+              CRUD::column('sum')->label('Сумма')
+              ->orderable(true)
+              ->orderLogic(function ($query, $column, $columnDirection) {
+                  return $query->orderBy('sum', $columnDirection);
+              });
+              CRUD::column([
+                  'name'     => 'pump_subcat_id',
+                  'label'    => 'Услуги',
+                  'type'     => 'custom_html',
+                  'value'    => 'Услуги',
+                  'wrapper' =>
+                  [
+                      'href' => function ($crud, $column, $entry, $related_key) {
+                          return backpack_url('pump/?division_id='. $entry['division_id']
+                          //. '&division_id=' . $entry['division_id']
+                          //. '&pump_subcat_id=' . $entry['pump_subcat_id']
+                          . '&service=1'
+                          . '&month=' . $entry['year'] . '-'
+                          . ($entry['month'] < 10 ? '0' : '') . $entry['month'])
+                          . '&tabel_num='.$entry['tabel_num'];
+                      },
+                  ],
+              ]);
+              CRUD::removeAllButtons();
+            // ПУМП статистика подразделения по месяцам
+          }
+          // Услуги суммарно
+          else if ($this->crud->getRequest()->service) {
+            $this->crud->query->select(
+              'year', 'month', 'fio',
+              'total', 'pump_subcat_id',
+              'division_id',
+              'pump_subcat.name as pump_subcat_name')
+              ->selectRaw('count(pump.id) as count, round(sum(total)) as sum');
+              $this->crud->query->join('pump_subcat', 'pump_subcat.id', '=', 'pump_subcat_id');
+              //$this->crud->query->where('tabel_num', $this->crud->getRequest()->tabel_num);
+              //$this->crud->query->groupby('tabel_num', 'month', 'pump_subcat_id');
+              $this->crud->query->groupby('month', 'pump_subcat_id');
+
+              CRUD::column('pump_subcat_name')->label('Услуга')->limit(100)
+              ->searchLogic(function ($query, $column, $searchTerm) {
+                  $query->orWhere('pump_subcat.name', 'like', '%'.$searchTerm.'%');
+              });
+              CRUD::column('count')->label('Всего услуг')->orderable(true)
+              ->orderLogic(function ($query, $column, $columnDirection) {
+                  return $query->orderBy('count', $columnDirection);
+              });
+              CRUD::column('sum')->label('Сумма')
+              ->orderable(true)
+              ->orderLogic(function ($query, $column, $columnDirection) {
+                  return $query->orderBy('sum', $columnDirection);
+              });
+              CRUD::removeAllButtons();
+            // ПУМП статистика подразделения по месяцам
+            } else {
+                  $this->crud->query->groupby('month')->orderBy('month');
+                  CRUD::column('name')->label(__('validation.attributes.institution'))->searchLogic('text');
+                  //CRUD::column('fio')->label('fio');
+                  CRUD::column('count')->label('Всего услуг');
+                  CRUD::column('sum')->label('Сумма');
+                  CRUD::column([
+                      'name'     => 'pump_subcat_id',
+                      'label'    => 'Услуги',
+                      'type'     => 'custom_html',
+                      'value'    => 'Услуги',
+                      'wrapper' =>
+                      [
+                          'href' => function ($crud, $column, $entry, $related_key) {
+                              return backpack_url('pump/?division_id='. $entry['division_id']
+                              //. '&division_id=' . $entry['division_id']
+                              //. '&pump_subcat_id=' . $entry['pump_subcat_id']
+                              . '&service=1'
+                              . '&month=' . $entry['year'] . '-'
+                              . ($entry['month'] < 10 ? '0' : '') . $entry['month'])
+                              ;//. '&tabel_num='.$entry['tabel_num'];
+                          },
+                      ],
+                  ]);
+
+                  CRUD::column([
+                      'name'     => 'staff',
+                      'label'    => 'Работники',
+                      'type'     => 'custom_html',
+                      'value'    => 'Работники',
+                      'wrapper' =>
+                      [
+                          'href' => function ($crud, $column, $entry, $related_key) {
+                              return backpack_url('pump/?division_id='. $entry['division_id']
+                              //. '&division_id=' . $entry['division_id']
+                              //. '&pump_subcat_id=' . $entry['pump_subcat_id']
+                              . '&staff=1'
+                              . '&month=' . $entry['year'] . '-'
+                              . ($entry['month'] < 10 ? '0' : '') . $entry['month'])
+                              ;//. '&tabel_num='.$entry['tabel_num'];
+                          },
+                      ],
+                  ]);
+
+              }
+              CRUD::removeAllButtons();
+        // END Divisions stat ////////////////////////////////////////////////////
         } else {
             CRUD::column('division')->label(__('validation.attributes.division'));
             CRUD::column('fio')->label(__('validation.attributes.fio'));
