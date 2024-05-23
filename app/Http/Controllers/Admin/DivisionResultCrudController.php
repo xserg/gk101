@@ -96,6 +96,32 @@ class DivisionResultCrudController extends CrudController
             CRUD::column('sum_max_account_hour')->label(__('validation.attributes.max_account_hour'));
             CRUD::column('sum_account_reserve')->label(__('validation.attributes.account_reserve'));
             CRUD::removeAllButtons();
+          } else if ($this->crud->getRequest()->division_id) {
+
+                $this->crud->query->select('division_id', 'year', 'month', 'divisions.name')
+                ->selectRaw('round(sum(visit_rate)) sum_visit_rate')
+                ->selectRaw('sum(visits) sum_visits')
+                ->selectRaw('round(sum(retes_count)) sum_retes_count')
+                ->selectRaw('round(sum(no_worked_rates)) sum_no_worked_rates')
+                ->selectRaw('sum(pump_account) sum_pump_account')
+                ->selectRaw('round(avg(account_hour)) avg_account_hour')
+                //->selectRaw('sum(max_account_hour) sum_max_account_hour')
+                ->selectRaw('max(account_hour) sum_max_account_hour')
+                ->selectRaw('sum(account_reserve) sum_account_reserve')
+                //, sum(retes_count) sum_retes_count, sum(no_worked_rates) sum_no_worked_rates, sum(pump_account) sum_pump_account'
+                ->join('divisions', 'divisions.id', 'division_results.division_id')
+                //->join('institutions', 'divisions.institution_id', 'institutions.id')
+                ->where('division_id', $this->crud->getRequest()->division_id)
+                ->groupby( 'month')->orderBy('month');
+                CRUD::column('name')->label(__('validation.attributes.institution'));
+                CRUD::column('sum_visit_rate')->label(__('validation.attributes.visit_rate'));
+                CRUD::column('sum_visits')->label(__('validation.attributes.visits'));
+                CRUD::column('sum_retes_count')->label(__('validation.attributes.retes_count'));
+                CRUD::column('sum_no_worked_rates')->label(__('validation.attributes.no_worked_rates'));
+                CRUD::column('avg_account_hour')->label(__('validation.attributes.avg_account_hour'));
+                CRUD::column('sum_max_account_hour')->label(__('validation.attributes.max_account_hour'));
+                CRUD::column('sum_account_reserve')->label(__('validation.attributes.account_reserve'));
+                CRUD::removeAllButtons();
         } else {
         //CRUD::column('file')->label(__('validation.attributes.file'));
             CRUD::column('division')->label(__('validation.attributes.division'));
