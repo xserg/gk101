@@ -83,7 +83,7 @@ class PumpCrudController extends CrudController
               'total', 'pump_subcat_id',
               'institutions.id as institution_id',
               'division_id')
-            ->selectRaw('count(pump.id) as count, round(sum(total)) as sum')
+            ->selectRaw('sum(quantity) as count, round(sum(total)) as sum')
             ->join('divisions', 'divisions.id', 'pump.division_id')
             ->join('institutions', 'divisions.institution_id', 'institutions.id')
             ->where('institution_id', $this->crud->getRequest()->institution_id);
@@ -97,7 +97,7 @@ class PumpCrudController extends CrudController
                 'institutions.id as institution_id',
                 'division_id',
                 'pump_subcat.name as pump_subcat_name')
-                ->selectRaw('count(pump.id) as count, round(sum(total)) as sum');
+                ->selectRaw('sum(quantity) as count, round(sum(total)) as sum');
                 $this->crud->query->join('pump_subcat', 'pump_subcat.id', '=', 'pump_subcat_id');
                 $this->crud->query->groupby('institutions.id', 'month', 'pump_subcat_id');
 
@@ -148,7 +148,7 @@ class PumpCrudController extends CrudController
             'total', 'pump_subcat_id', 'fio', 'tabel_num',
             //'institutions.id as institution_id',
             'division_id')
-          ->selectRaw('count(pump.id) as count, round(sum(total)) as sum')
+          ->selectRaw('sum(quantity) as count, round(sum(total)) as sum')
           ->join('divisions', 'divisions.id', 'pump.division_id')
         //  ->join('institutions', 'divisions.institution_id', 'institutions.id')
           ->where('division_id', $this->crud->getRequest()->division_id);
@@ -160,7 +160,7 @@ class PumpCrudController extends CrudController
               'total', 'pump_subcat_id',
               'division_id', 'tabel_num',
               'pump_subcat.name as pump_subcat_name')
-              ->selectRaw('count(pump.id) as count, round(sum(total)) as sum');
+              ->selectRaw('sum(quantity) as count, round(sum(total)) as sum');
               $this->crud->query->join('pump_subcat', 'pump_subcat.id', '=', 'pump_subcat_id');
               //$this->crud->query->where('tabel_num', $this->crud->getRequest()->tabel_num);
               $this->crud->query->groupby('tabel_num', 'month');
@@ -204,7 +204,7 @@ class PumpCrudController extends CrudController
               'total', 'pump_subcat_id',
               'division_id',
               'pump_subcat.name as pump_subcat_name')
-              ->selectRaw('count(pump.id) as count, round(sum(total)) as sum');
+              ->selectRaw('sum(quantity) as count, round(sum(total)) as sum');
               $this->crud->query->join('pump_subcat', 'pump_subcat.id', '=', 'pump_subcat_id');
               //$this->crud->query->where('tabel_num', $this->crud->getRequest()->tabel_num);
               //$this->crud->query->groupby('tabel_num', 'month', 'pump_subcat_id');
