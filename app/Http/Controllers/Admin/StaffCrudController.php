@@ -145,17 +145,20 @@ class StaffCrudController extends CrudController
         CRUD::field('lastname')->label(__('validation.attributes.lastname'));
         CRUD::field('name')->label(__('validation.attributes.name'));
         CRUD::field('fathername')->label(__('validation.attributes.fathername'));
-        //CRUD::field('role.rus_name')->label(__('validation.attributes.role_id'));
+        CRUD::field('role')->label(__('validation.attributes.role_id'));
         //CRUD::field('division_group')->label(__('validation.attributes.division_group'));
         CRUD::field('tabel_num')->label(__('validation.attributes.tabel_num'));
         CRUD::field('position')->label(__('validation.attributes.position'));
+        CRUD::field('ot_password')->label('Пароль');
 
         CRUD::setValidation([
             'division' => 'required',
             'name' => 'required|min:3',
             'lastname' => 'required|min:3',
             'fathername' => 'required|min:3',
-            //'role_id' => 'required',
+            'role' => 'required',
+            'ot_password' => 'required',
+            'tabel_num' => 'required',
         ]);
 
     }
