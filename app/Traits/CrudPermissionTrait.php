@@ -88,6 +88,10 @@ trait CrudPermissionTrait
             if (!in_array($table, $tables)) {
                 return;
             }
+            if ($division_id = $user->staff['division_id']) {
+                CRUD::addClause('where', 'division_id', $division_id);
+                CRUD::addClause('where', 'file', 'podrazdelenia');
+            }
             if ($table != 'division_results' && $value = $user->staff['tabel_num']) {
                 CRUD::addClause('where', 'tabel_num', $value);
             }
