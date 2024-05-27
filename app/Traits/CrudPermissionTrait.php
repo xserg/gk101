@@ -83,7 +83,17 @@ trait CrudPermissionTrait
             if ($value = $user->staff['tabel_num']) {
                 CRUD::addClause('where', 'tabel_num', $value);
             }
+        } else if($user->hasRole('paramedic')) {
+            $tables = ['staff', 'division_results', 'pump'];
+            if (!in_array($table, $tables)) {
+                return;
+            }
+            if ($table != 'division_results' && $value = $user->staff['tabel_num']) {
+                CRUD::addClause('where', 'tabel_num', $value);
+            }
         }
+
+
         // double check if no authenticated user
         if (!$user) {
             return; // allow nothing

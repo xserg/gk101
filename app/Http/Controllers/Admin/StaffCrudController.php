@@ -104,8 +104,14 @@ class StaffCrudController extends CrudController
             'wrapper' =>
             [
                 'href' => function ($crud, $column, $entry, $related_key) {
-                    return backpack_url('division-result/?file=itog&tabel_num=' . $entry['tabel_num']);
-                    //return backpack_url('division-result/?file=podrazdelenia&division_id=' . $entry['id']);
+                    //return backpack_url('division-result/?file=itog&tabel_num=' . $entry['tabel_num']);
+                    $user = backpack_user();
+                    if ($user->hasRole('paramedic')) {
+                        return backpack_url('division-result/?file=podrazdelenia&division_id=' . $entry['division_id']);
+                    } else {
+                        return backpack_url('division-result/?file=itog&tabel_num=' . $entry['tabel_num']);
+                    }
+
                 },
             ],
         ]);

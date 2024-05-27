@@ -38,5 +38,7 @@
 @endif
 @if(backpack_user()->can('menu.result') || backpack_user()->hasRole('admin'))
 <x-backpack::menu-item title="Результаты" icon="la la-question" :link="backpack_url('division-result')" />
+@endif
+@if(backpack_user()->can('menu.pump') || backpack_user()->hasRole('admin'))
 <x-backpack::menu-item title="ПУМП" icon="la la-question" :link="backpack_url('pump')" />
 @endif

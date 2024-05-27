@@ -46,6 +46,7 @@ class DivisionResultCrudController extends CrudController
     protected function setupListOperation()
     {
         // set columns from db columns.
+        $user = backpack_user();
 
         if (!$this->crud->getRequest()->has('order') && !$this->crud->getRequest()->institution_id){
             $this->crud->orderBy('division_results.id');
@@ -96,7 +97,7 @@ class DivisionResultCrudController extends CrudController
             CRUD::column('sum_max_account_hour')->label(__('validation.attributes.max_account_hour'));
             CRUD::column('sum_account_reserve')->label(__('validation.attributes.account_reserve'));
             CRUD::removeAllButtons();
-          } else if ($this->crud->getRequest()->division_id) {
+          } else if ($this->crud->getRequest()->division_id && !$user->hasRole('paramedic')) {
 
                 $this->crud->query->select('division_id', 'year', 'month', 'divisions.name')
                 ->selectRaw('round(sum(visit_rate)) sum_visit_rate')
@@ -125,8 +126,10 @@ class DivisionResultCrudController extends CrudController
         } else {
         //CRUD::column('file')->label(__('validation.attributes.file'));
             CRUD::column('division')->label(__('validation.attributes.division'));
-            CRUD::column('staff.lastname')->label(__('validation.attributes.lastname'));
-            CRUD::column('staff.name')->label(__('validation.attributes.name'));
+            if(!$user->hasRole('paramedic')) {
+              CRUD::column('staff.lastname')->label(__('validation.attributes.lastname'));
+              CRUD::column('staff.name')->label(__('validation.attributes.name'));
+            }
             CRUD::column('position')->label(__('validation.attributes.position'));
         }
 
@@ -212,7 +215,9 @@ class DivisionResultCrudController extends CrudController
         CRUD::column('staff.name')->label(__('validation.attributes.name'));
         CRUD::column('staff.fathername')->label(__('validation.attributes.fathername'));
 
-        $common_fields = ['year', 'month', 'division_id', 'tabel_num'];
+        $common_fields = ['year', 'month', 'division_id',
+        //'tabel_num'
+        ];
 
         //foreach ($fields as $field => $label) {
         foreach ($fields as $field_arr) {
