@@ -52,12 +52,12 @@
 
                 {!! csrf_field() !!}
 
-                <div>
+                <!--div>
                   @if ($user->staff)
                     <b>{{ $user->staff->lastname . ' ' . $user->staff->name . ' ' . $user->staff->fathername }}</b></h3>
                     @endif
                   </div>
-                <div>{{ $role_str }}</div>
+                <div>{{ $role_str }}</div-->
 
                 <div class="card">
                   <div>
@@ -65,7 +65,7 @@
                       <b>{{ $user->staff->lastname . ' ' . $user->staff->name . ' ' . $user->staff->fathername }}</b></h3>
                       @endif
                     </div>
-                  <div>{{ $role_str }}</div>
+                  <div>{{ $role_str . ' ' . $user->staff->division_id }}</div>
                     <div class="card-header">
                         <h3 class="card-title">{{ trans('backpack::base.update_account_info') }}
                     </div>

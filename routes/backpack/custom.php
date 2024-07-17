@@ -34,4 +34,5 @@ Route::group([
     Route::crud('pump', 'PumpCrudController');
     Route::crud('pump-subcat', 'PumpSubcatCrudController');
     Route::crud('pump-categories', 'PumpCategoriesCrudController');
+    Route::crud('registry', 'RegistryCrudController');
 }); // this should be the absolute last line of this file

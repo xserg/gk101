@@ -40,7 +40,7 @@ trait CrudPermissionTrait
         // get context
         $table = CRUD::getModel()->getTable();
 
-        $tables = ['staff', 'divisions', 'division_results', 'pump'];
+        $tables = ['staff', 'divisions', 'division_results', 'pump', 'registry'];
         if (!in_array($table, $tables)) {
             return;
         }
@@ -76,11 +76,13 @@ trait CrudPermissionTrait
                 //CRUD::addClause('where', 'division_id', '=', $user->staff['division_id']);
             }
         } else if($user->hasRole('medic')) {
-            $tables = ['staff', 'division_results', 'pump'];
+            $tables = ['staff', 'division_results', 'pump', 'registry'];
             if (!in_array($table, $tables)) {
                 return;
             }
-            if ($value = $user->staff['tabel_num']) {
+            if ($table == 'registry') {
+                CRUD::addClause('where', 'user_id', $user->id);
+            } else if ($value = $user->staff['tabel_num']) {
                 CRUD::addClause('where', 'tabel_num', $value);
             }
         } else if($user->hasRole('paramedic')) {

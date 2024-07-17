@@ -61,4 +61,15 @@ class User extends Authenticatable
       //return '<a href=" ' . url('division-results/?tabel_num=' . $this->tabel_num) . '" target="_blank">'
       return $this->staff->lastname . ' ' . $this->staff->name . ' ' . $this->staff->fathername;// . '</a>';
     }
+
+    public static function getDocs()
+    {
+        $users = User::role('medic')->get();
+
+        foreach ($users as $user) {
+          if ($user->staff->lastname)
+            $ret[$user->id] = $user->staff->lastname; //$this->getNameWithLink();
+        }
+        return $ret;
+    }
 }
