@@ -84,7 +84,7 @@ class RegistryCrudController extends CrudController
         //CRUD::field('division')->label(__('validation.attributes.division'))->value($user->staff->division_id);
 
         $this->addFields();
-
+        CRUD::setValidation(['polis' => 'required|digits:16|unique:registry']);
         Registry::creating(function($entry) {
             $entry->user_id = backpack_user()->id;
             $entry->division_id = backpack_user()->staff->division_id;
@@ -109,7 +109,8 @@ class RegistryCrudController extends CrudController
           ]);
           CRUD::field('division')->label(__('validation.attributes.division'));
         }
-        $this->setupCreateOperation();
+        $this->addFields();
+        //$this->setupCreateOperation();
     }
 
     protected function addFields()
@@ -117,7 +118,7 @@ class RegistryCrudController extends CrudController
       CRUD::field('lastname')->label(__('validation.attributes.lastname'));
       CRUD::field('name')->label(__('validation.attributes.name'));
       CRUD::field('fathername')->label(__('validation.attributes.fathername'));
-      CRUD::field('email')->label('Email');
+      //CRUD::field('email')->label('Email');
       CRUD::field('polis')->label('Полис');
       CRUD::field('birthdate')->type('date')->label('День рождения');
       CRUD::field('pregnancy_start')->type('date')->label('Начало беременности');
@@ -136,9 +137,11 @@ class RegistryCrudController extends CrudController
           'name' => 'required|min:3',
           'lastname' => 'required|min:3',
           'fathername' => 'required|min:3',
-          'email' => 'required|email',
+          //'email' => 'required|email',
           'polis' => 'required|digits:16',
-
+          'weeks' => 'required|numeric|max:41',
+          'birthdate' => 'required',
+          'pregnancy_start' => 'required',
       ]);
     }
 }
