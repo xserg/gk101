@@ -83,6 +83,18 @@ class RegistryCrudController extends CrudController
         //$user = backpack_user();
         //CRUD::field('division')->label(__('validation.attributes.division'))->value($user->staff->division_id);
 
+        if (backpack_user()->hasRole('head_division')) {
+          CRUD::field(
+          [
+               'name'  => 'user_id',
+               'label' => 'Врач', // Table column heading
+               'type'  => 'select_from_array',
+               'options'     => User::getDocs(
+                 backpack_user()->staff->division_id
+               ),
+          ]);
+        }
+
         $this->addFields();
         CRUD::setValidation(['polis' => 'required|digits:16|unique:registry']);
         Registry::creating(function($entry) {

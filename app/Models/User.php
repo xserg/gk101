@@ -62,13 +62,23 @@ class User extends Authenticatable
       return $this->staff->lastname . ' ' . $this->staff->name . ' ' . $this->staff->fathername;// . '</a>';
     }
 
-    public static function getDocs()
+    public static function getListName($user)
+    {
+      return $user->staff->lastname . ' ' . mb_substr($user->staff->name, 0, 1) . '. ' . mb_substr($user->staff->fathername, 0, 1) . '.';
+    }
+
+    public static function getDocs($division_id = null)
     {
         $users = User::role('medic')->get();
 
         foreach ($users as $user) {
-          if ($user->staff->lastname)
-            $ret[$user->id] = $user->staff->lastname; //$this->getNameWithLink();
+          if ($user->staff->lastname) {
+            if ($division_id && $division_id != $user->staff->division_id) {
+                continue;
+            }
+            $ret[$user->id] = self::getListName($user);
+            //$user->staff->lastname;
+          } //$this->getNameWithLink();
         }
         return $ret;
     }
