@@ -28,6 +28,9 @@ class Registry extends Model
     protected $guarded = ['id'];
     // protected $fillable = [];
     // protected $hidden = [];
+    protected $casts = [
+        'pregnancy_start' => 'date'
+    ];
 
     /*
     |--------------------------------------------------------------------------

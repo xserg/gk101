@@ -7,6 +7,8 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Models\Registry;
 use App\Models\User;
+use Carbon\Carbon;
+
 /**
  * Class RegistryCrudController
  * @package App\Http\Controllers\Admin
@@ -97,9 +99,12 @@ class RegistryCrudController extends CrudController
 
         $this->addFields();
         CRUD::setValidation(['polis' => 'required|digits:16|unique:registry']);
+
         Registry::creating(function($entry) {
             $entry->user_id = backpack_user()->id;
             $entry->division_id = backpack_user()->staff->division_id;
+
+            $entry->pregnancy_start = Carbon::now()->subWeeks($entry->weeks);// - $entry->weeks;
         });
     }
 
@@ -130,10 +135,9 @@ class RegistryCrudController extends CrudController
       CRUD::field('lastname')->label(__('validation.attributes.lastname'));
       CRUD::field('name')->label(__('validation.attributes.name'));
       CRUD::field('fathername')->label(__('validation.attributes.fathername'));
-      //CRUD::field('email')->label('Email');
       CRUD::field('polis')->label('Полис');
       CRUD::field('birthdate')->type('date')->label('День рождения');
-      CRUD::field('pregnancy_start')->type('date')->label('Начало беременности');
+      //CRUD::field('pregnancy_start')->type('date')->label('Начало беременности');
       CRUD::field('phone')->label('Телефон');
       CRUD::field('address')->label('Адрес');
       CRUD::field('weeks')->label('Срок беременности');
@@ -153,7 +157,7 @@ class RegistryCrudController extends CrudController
           'polis' => 'required|digits:16',
           'weeks' => 'required|numeric|max:41',
           'birthdate' => 'required',
-          'pregnancy_start' => 'required',
+          //'pregnancy_start' => 'required',
       ]);
     }
 }
