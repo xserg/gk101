@@ -53,9 +53,22 @@ class RegistryCrudController extends CrudController
              'label' => 'Врач', // Table column heading
              'type'  => 'model_function',
              'function_name' => 'getNames',
+             'orderable'  => true,
+             'orderLogic' => function ($query, $column, $columnDirection) {
+                     return $query->orderBy('user_id', $columnDirection);
+             }
         ]);
-        //CRUD::column('user.staff.lastname')->label('Врач');
-        CRUD::column('division')->label(__('validation.attributes.division'));
+        CRUD::column(
+        [
+             'name'  => 'division',
+             'label' => __('validation.attributes.division'),
+             'orderable'  => true,
+             'orderLogic' => function ($query, $column, $columnDirection) {
+                 //return $query->leftJoin('categories', 'categories.id', '=', 'articles.select')
+                     return $query->orderBy('division_id', $columnDirection);//->select('articles.*');
+             }
+        ]);
+        //CRUD::column('division')->label(__('validation.attributes.division'));
         CRUD::column('lastname')->label(__('validation.attributes.lastname'));
         CRUD::column('name')->label(__('validation.attributes.name'));
         CRUD::column('fathername')->label(__('validation.attributes.fathername'));
