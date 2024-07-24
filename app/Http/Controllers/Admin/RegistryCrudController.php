@@ -72,7 +72,7 @@ class RegistryCrudController extends CrudController
         CRUD::column('lastname')->label(__('validation.attributes.lastname'));
         CRUD::column('name')->label(__('validation.attributes.name'));
         CRUD::column('fathername')->label(__('validation.attributes.fathername'));
-        CRUD::column('email')->label('Email');
+        //CRUD::column('email')->label('Email');
         CRUD::column('polis')->label('Полис');
         CRUD::column('birthdate')->type('date')->label('День рождения');
         //CRUD::field('pregnancy_start')->type('date')->label('Начало беременности');
