@@ -6,8 +6,10 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Registry;
 
-class Division extends Model
+class Reglog extends Model
 {
     use CrudTrait;
     use HasFactory;
@@ -18,9 +20,8 @@ class Division extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $connection = 'mysql';
-    protected $table = 'divisions';
-    // protected $primaryKey = 'id';
+    protected $table = 'reglog';
+    //protected $primaryKey = 'id';
     public $timestamps = false;
     protected $guarded = ['id'];
     // protected $fillable = [];
@@ -37,16 +38,15 @@ class Division extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function department(): BelongsTo
+    public function division(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Division::class);
     }
 
-    public function institution(): BelongsTo
+    public function staff(): HasOne
     {
-        return $this->belongsTo(Institution::class);
+        return $this->hasOne(Staff::class, 'user_id', 'doc_id')->withDefault();
     }
-
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -64,36 +64,21 @@ class Division extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
-    public $csv_labels = [
-      'Департамент',
-      'Учреждение',
-      'Подразделения',
-      'Группа',
-      'Код'
-    ];
-
-    public function checkHead($head)
+    public function getNames()
     {
-          foreach ($head as $title) {
-              if (!in_array($title, $this->csv_labels)) {
-                  echo "Заголовок '" . $title . "' не найден!";
-                  return false;
-              }
-          }
-          return true;
+      if ($this->user_id == 1) {
+          return 'admin';
+      }
+      return $this->staff->lastname . ' ' . mb_substr($this->staff->name, 0, 1) . '. ' . mb_substr($this->staff->fathername, 0, 1) . '.';// . '</a>';
     }
 
-    public function csvRow($row)
+    public function getCount()
     {
-      $update = [
-        'name' => $row['Подразделения'],
-        'group_id' => $row['Группа'],
-        'code' => $row['Код'],
-        'department_id' =>   1,
-        'institution_id' =>   1,
-      ];
-      $this->updateOrCreate(['code' => $row['Код']], $update);
-      //$this->updateOrCreate($update);
+        $res = Registry::selectRaw('count(*) as count')
+        ->where('user_id', $this->doc_id)
+        ->whereraw('MONTH(created_at)='.$this->month)
+        ->whereraw('YEAR(created_at)='.$this->year)
+        ->first();
+        return $res;
     }
 }

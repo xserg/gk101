@@ -20,6 +20,8 @@ class User extends Authenticatable
     use CrudTrait;
     use HasRoles;
 
+      protected $connection = 'mysql';
+
     /**
      * The attributes that are mass assignable.
      *

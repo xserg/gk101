@@ -16,6 +16,8 @@ class Staff extends Model
     use CrudTrait;
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES

@@ -40,7 +40,7 @@ trait CrudPermissionTrait
         // get context
         $table = CRUD::getModel()->getTable();
 
-        $tables = ['staff', 'divisions', 'division_results', 'pump', 'registry'];
+        $tables = ['staff', 'divisions', 'division_results', 'pump', 'registry', 'user_to_watched_lectures', 'reglog'];
         if (!in_array($table, $tables)) {
             return;
         }
@@ -76,14 +76,19 @@ trait CrudPermissionTrait
                 //CRUD::addClause('where', 'division_id', '=', $user->staff['division_id']);
             }
         } else if($user->hasRole('medic')) {
-            $tables = ['staff', 'division_results', 'pump', 'registry'];
+            $tables = ['staff', 'division_results', 'pump', 'registry', 'user_to_watched_lectures', 'reglog'];
             if (!in_array($table, $tables)) {
                 return;
             }
             if ($table == 'registry') {
                 CRUD::addClause('where', 'user_id', $user->id);
+            } else if ($table == 'reglog') {
+                CRUD::addClause('where', 'doc_id', $user->id);
             } else if ($value = $user->staff['tabel_num']) {
                 CRUD::addClause('where', 'tabel_num', $value);
+            } else {
+              // || $table == 'reglog'
+              CRUD::addClause('where', 'user_id', $user->id);
             }
         } else if($user->hasRole('paramedic')) {
             $tables = ['staff', 'division_results', 'pump'];

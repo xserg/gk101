@@ -21,7 +21,7 @@ class Registry extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    protected $connection = 'mysql';
     protected $table = 'registry';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
