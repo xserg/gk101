@@ -43,10 +43,10 @@
 <x-backpack::menu-item title="ПУМП" icon="la la-question" :link="backpack_url('pump')" />
 @endif
 @if(backpack_user()->can('menu.registry') || backpack_user()->hasRole('admin'))
-<x-backpack::menu-dropdown title="Реестр беременных" icon="la la-users">
+<x-backpack::menu-dropdown title="Беременные" icon="la la-users">
     <x-backpack::menu-dropdown-item title="Реестр беременных" icon="la la-user" :link="backpack_url('registry')" />
-    <x-backpack::menu-dropdown-item title="План" icon="la la-question" :link="backpack_url('reglog')" />
-    <x-backpack::menu-dropdown-item title="Просмотры" icon="la la-question" :link="backpack_url('watched')" />
+    <x-backpack::menu-dropdown-item title="Целевые значения" icon="la la-question" :link="backpack_url('reglog')" />
+    <x-backpack::menu-dropdown-item title="Школа матерей" icon="la la-question" :link="backpack_url('watched')" />
 </x-backpack::menu-dropdown>
 
 @endif

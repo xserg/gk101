@@ -112,10 +112,23 @@ class WatchedCrudController extends CrudController
                }
           ]);
 
+          CRUD::column(
+          [
+               'name'  => 'lastname',
+               'label' => __('validation.attributes.lastname'), // Table column heading
+               'type'  => 'model_function',
+               'function_name' => 'getPatient',
+               'orderable'  => true,
+               'orderLogic' => function ($query, $column, $columnDirection) {
+                       return $query->orderBy('user_id', $columnDirection);
+               }
+          ]);
 
-          CRUD::column('lastname')->label(__('validation.attributes.lastname'));
+
+          //CRUD::column('lastname')->label(__('validation.attributes.lastname'));
+
           CRUD::column('lecture.title')->label('Название');
-          CRUD::column('created_at')->label('Дата');
+          CRUD::column('created_at')->type('date')->label('Дата');
 
         } else {
           $this->crud->query->selectRaw('count(*) as count');

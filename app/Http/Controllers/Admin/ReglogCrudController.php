@@ -31,7 +31,7 @@ class ReglogCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Reglog::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/reglog');
-        CRUD::setEntityNameStrings('План', 'План');
+        CRUD::setEntityNameStrings('Целевое значение', 'Целевые значения');
         $this->setAccessUsingPermissions();
     }
 
@@ -55,8 +55,8 @@ class ReglogCrudController extends CrudController
       //->having('month', 'reg_month')
       //->groupby('user_id', 'reg_month');
 
-        CRUD::column('year')->label(__('validation.attributes.year'));
-        CRUD::column('month')->label(__('validation.attributes.month'));
+        //CRUD::column('year')->label(__('validation.attributes.year'));
+        //CRUD::column('month')->label(__('validation.attributes.month'));
         //CRUD::column('division')->label(__('validation.attributes.division'));
         CRUD::column(
         [
@@ -93,8 +93,8 @@ class ReglogCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::field('year')->default(date("Y"))->label(__('validation.attributes.year'));
-        CRUD::field('month')->default(date("m"))->label(__('validation.attributes.month'));
+        //CRUD::field('year')->default(date("Y"))->label(__('validation.attributes.year'));
+        //CRUD::field('month')->default(date("m"))->label(__('validation.attributes.month'));
 
         //CRUD::field('division')->label(__('validation.attributes.division'));
         $this->addFields();
@@ -120,8 +120,8 @@ class ReglogCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-      CRUD::field('year')->label(__('validation.attributes.year'));
-      CRUD::field('month')->label(__('validation.attributes.month'));
+      //CRUD::field('year')->label(__('validation.attributes.year'));
+      //CRUD::field('month')->label(__('validation.attributes.month'));
       CRUD::field('division')->label(__('validation.attributes.division'));
       $this->addFields();
     }
@@ -146,8 +146,8 @@ class ReglogCrudController extends CrudController
 
       CRUD::setValidation([
           //'division' => 'required',
-          'year' => 'required|min:3',
-          'month' => 'required',
+          //'year' => 'required|min:3',
+          //'month' => 'required',
           'doc_id' => 'required',
           'plan' => 'required|numeric',
 

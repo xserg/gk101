@@ -47,4 +47,9 @@ class Watched extends Pivot
       }
       return $this->staff->lastname . ' ' . mb_substr($this->staff->name, 0, 1) . '. ' . mb_substr($this->staff->fathername, 0, 1) . '.';// . '</a>';
     }
+
+    public function getPatient()
+    {
+      return $this->lastname . ' ' . mb_substr($this->name, 0, 1) . '. ' . mb_substr($this->fathername, 0, 1) . '.';// . '</a>';
+    }
 }
