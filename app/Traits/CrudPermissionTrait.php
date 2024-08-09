@@ -84,6 +84,8 @@ trait CrudPermissionTrait
                 CRUD::addClause('where', 'user_id', $user->id);
             } else if ($table == 'reglog') {
                 CRUD::addClause('where', 'doc_id', $user->id);
+            } else if ($table == 'user_to_watched_lectures') {
+                CRUD::addClause('where', 'registry.user_id', $user->id);
             } else if ($value = $user->staff['tabel_num']) {
                 CRUD::addClause('where', 'tabel_num', $value);
             } else {
