@@ -76,8 +76,8 @@ class Reglog extends Model
     {
         $res = Registry::selectRaw('count(*) as count')
         ->where('user_id', $this->doc_id)
-        ->whereraw('MONTH(created_at)='.$this->month)
-        ->whereraw('YEAR(created_at)='.$this->year)
+        //->whereraw('MONTH(created_at)='.$this->month)
+        //->whereraw('YEAR(created_at)='.$this->year)
         ->first();
         return $res;
     }

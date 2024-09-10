@@ -70,7 +70,7 @@ class ReglogCrudController extends CrudController
              }
         ]);
         CRUD::column('doc')->label('Врач');
-        CRUD::column('plan');
+        CRUD::column('plan')->label('План');
         //CRUD::column('reg_month');
         //CRUD::column('count')->label('Факт');
         CRUD::column(
@@ -83,6 +83,12 @@ class ReglogCrudController extends CrudController
              'orderable'  => true,
         ]);
 
+    }
+
+    protected function setupShowOperation()
+    {
+      CRUD::column('division')->label(__('validation.attributes.division'));
+      $this->setupListOperation();
     }
 
     /**
@@ -122,8 +128,21 @@ class ReglogCrudController extends CrudController
     {
       //CRUD::field('year')->label(__('validation.attributes.year'));
       //CRUD::field('month')->label(__('validation.attributes.month'));
-      CRUD::field('division')->label(__('validation.attributes.division'));
-      $this->addFields();
+      CRUD::field('division')->label(__('validation.attributes.division'))->attributes(['disabled'    => 'disabled']);
+      CRUD::field(
+      [
+           'name'  => 'doc_id',
+           'label' => 'Врач', // Table column heading
+           'type'  => 'select_from_array',
+           'options'     =>['' => '-'] + User::getDocs(
+             backpack_user()->staff->division_id ?? null
+           ),
+           'attributes' => ['disabled'    => 'disabled']
+      ]);
+      //CRUD::field('doc')->label('Врач');
+      CRUD::field('plan')->label('План');
+
+      //$this->addFields();
     }
 
     protected function addFields()
