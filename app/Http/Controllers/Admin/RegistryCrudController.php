@@ -115,7 +115,7 @@ class RegistryCrudController extends CrudController
         CRUD::setValidation(['polis' => 'required|digits:16|unique:registry']);
 
         Registry::creating(function($entry) {
-            $entry->user_id = backpack_user()->id;
+            //$entry->user_id = backpack_user()->id;
             $entry->division_id = backpack_user()->staff->division_id;
 
             $entry->pregnancy_start = Carbon::now()->subWeeks($entry->weeks);// - $entry->weeks;
@@ -171,6 +171,7 @@ class RegistryCrudController extends CrudController
           'polis' => 'required|digits:16',
           'weeks' => 'required|numeric|max:41',
           'birthdate' => 'required',
+          'address' => 'required',
           //'pregnancy_start' => 'required',
       ]);
     }
