@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\WatchedRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Route;
+use App\Models\Watched;
 
 /**
  * Class WatchedCrudController
@@ -44,6 +46,16 @@ class WatchedCrudController extends CrudController
         //CRUD::setFromDb(); // set columns from db columns.
 
         $tableName = $this->crud->query->getModel()->getTable();
+        $month = $this->crud->getRequest()->month ?? '';
+        if ($month){
+            $month_arr = explode('-', $this->crud->getRequest()->month);
+            //CRUD::whereraw('MONTH(created_at)='.$month_arr[1]);
+            //CRUD::whereraw('YEAR(created_at)='.$month_arr[0]);
+            //CRUD::addClause('where', 'year', $month_arr[0]);
+            //CRUD::addClause('where', 'month', $month_arr[1]);
+            CRUD::addClause('whereraw', 'YEAR(' . $tableName . '.created_at)='.$month_arr[0]);
+            CRUD::addClause('whereraw', 'MONTH('. $tableName . '.created_at)='.$month_arr[1]);
+        }
 
         $this->crud->query->select(
           '*',
@@ -90,8 +102,9 @@ class WatchedCrudController extends CrudController
                 [
                     'href' => function ($crud, $column, $entry, $related_key) {
                         return backpack_url('watched/?user_id='. $entry['user_id']
-                        . '&month=' . $entry['year'] . '-'
-                        . ($entry['month'] < 10 ? '0' : '') . $entry['month']);
+                        . '&month=' . $crud->getRequest()->month);
+                        //. '&month=' . $entry['year'] . '-'
+                        //. ($entry['month'] < 10 ? '0' : '') . $entry['month']);
                     },
                 ],
             ]);
@@ -129,7 +142,7 @@ class WatchedCrudController extends CrudController
 
           CRUD::column('lecture.title')->label('Название');
           CRUD::column('created_at')->type('date')->label('Дата');
-
+          CRUD::allowAccess('export');
         } else {
           $this->crud->query->selectRaw('count(*) as count');
           $this->crud->query->groupby('division_id');
@@ -145,20 +158,32 @@ class WatchedCrudController extends CrudController
               [
                   'href' => function ($crud, $column, $entry, $related_key) {
                       return backpack_url('watched/?division_id='. $entry['division_id']
-                      . '&month=' . $entry['year'] . '-'
-                      . ($entry['month'] < 10 ? '0' : '') . $entry['month']);
+                        . '&month=' . $crud->getRequest()->month);
+
                   },
               ],
           ]);
 
         }
-        /*
-        CRUD::column('lastname')->label(__('validation.attributes.lastname'));
-        CRUD::column('lecture.title')->label('Название');
-        CRUD::column('created_at')->label('Дата');
-        */
+
 
         CRUD::removeAllButtons();
+
+        CRUD::button('date')->stack('top')->view('crud::buttons.date')->meta(['month' => $month ?? '']);
+        CRUD::allowAccess('date');
+
+        CRUD::button('export')->stack('bottom')
+        ->view('crud::buttons.quick')
+
+        ->meta([
+            'wrapper' => [
+                'href' => function ($entry, $crud) {
+                    return backpack_url("watched/export?".$this->crud->getRequest()->getQueryString());
+                },
+            ],
+        ]);
+        //->meta(['month' => $month ?? '']);
+        //CRUD::allowAccess('export');
     }
 
     /**
@@ -186,5 +211,64 @@ class WatchedCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    protected function setupExportRoutes($segment, $routeName, $controller)
+    {
+        Route::get($segment.'/export', [
+            'as'        => $routeName.'.setupExportRoutes',
+            'uses'      => $controller.'@export',
+            'operation' => 'export',
+        ]);
+    }
+
+    public function export()
+    {
+        //echo 'Export...';
+
+        $this->setupListOperation();
+        $this->crud->query->join(env('DB_DATABASE_MAMAVIP') . '.lectures', 'lectures.id', 'lecture_id');
+
+        if (backpack_user()->hasRole('head_division')) {
+            //$this->crud->query->where('registry.division_id', backpack_user()->staff->division_id);
+        } else if (backpack_user()->hasRole('medic')) {
+            $this->crud->query->where('registry.user_id', $this->crud->getRequest()->user_id);
+        }
+
+        $watched = $this->crud->query->get()->toarray();
+
+        $ret = '';
+        foreach ($watched as $row) {
+            $ret .= $row['division_id'] . ','
+            . $row['lastname'] . ','
+            . $row['name'] . ','
+            . $row['fathername'] . ','
+            . $row['polis'] . ','
+            . $row['birthdate'] . ','
+            . $row['email'] . ','
+            . $row['phone'] . ','
+            . $row['address'] . ','
+            //. $row['pregnancy_start'] . ','
+            . $row['created_at'] . ','
+            . $row['title'] . "\n";
+        }
+
+        //echo '<pre>';
+        //print_r($watched);
+        //echo $ret;
+        //exit;
+        $title =
+        "Подразделение, Фамилия, Имя, Отчество, Полис, Дата рождения, Емайл, Телефон, Адрес, Дата промотра, Название видео\n";
+
+
+        if ($ret) {
+            header("Content-Type: text/csv");
+            header("Content-Disposition: attachment; filename=export_file.csv");
+            echo $title . $ret;
+        } else {
+          echo 'no data';
+        }
+        exit;
+
     }
 }
