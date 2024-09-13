@@ -47,14 +47,15 @@ class WatchedCrudController extends CrudController
 
         $tableName = $this->crud->query->getModel()->getTable();
         $month = $this->crud->getRequest()->month ?? '';
+
         if ($month){
             $month_arr = explode('-', $this->crud->getRequest()->month);
             //CRUD::whereraw('MONTH(created_at)='.$month_arr[1]);
             //CRUD::whereraw('YEAR(created_at)='.$month_arr[0]);
             //CRUD::addClause('where', 'year', $month_arr[0]);
             //CRUD::addClause('where', 'month', $month_arr[1]);
-            CRUD::addClause('whereraw', 'YEAR(' . $tableName . '.created_at)='.$month_arr[0]);
-            CRUD::addClause('whereraw', 'MONTH('. $tableName . '.created_at)='.$month_arr[1]);
+            //CRUD::addClause('whereraw', 'YEAR(' . $tableName . '.created_at)='.$month_arr[0]);
+            //CRUD::addClause('whereraw', 'MONTH('. $tableName . '.created_at)='.$month_arr[1]);
         }
 
         $this->crud->query->select(
