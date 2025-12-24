@@ -8,7 +8,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Models\Registry;
 use App\Models\User;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\DB;
 /**
  * Class RegistryCrudController
  * @package App\Http\Controllers\Admin
@@ -21,8 +21,20 @@ class RegistryCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Winex01\BackpackFilter\Http\Controllers\Operations\FilterOperation;
 
     use \App\Traits\CrudPermissionTrait;
+   
+    /*
+    use \Winex01\BackpackFilter\Http\Controllers\Operations\ExportOperation;
+
+    // Optional: if you dont want to use the entity/export or user/export convention you can override the export route:
+    public function exportRoute()
+    {
+        return route('test.export');; // if you define a route here then it will use instead of the auto
+    }
+    */
+    
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -34,6 +46,143 @@ class RegistryCrudController extends CrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/registry');
         CRUD::setEntityNameStrings('беременную', 'Реестр беременных');
         $this->setAccessUsingPermissions();
+        $this->crud->allowAccess('filters'); // Allow access
+    }
+
+    public function setupFilterOperation()
+    {
+        $this->crud->field([
+            'name' => 'division_id',
+            'label' => __('validation.attributes.division'),
+            'type' => 'select',
+            
+            'entity'    => 'division',
+
+            // optional - manually specify the related model and attribute
+            'model'     => "App\Models\Division", // related model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+
+            // optional - force the related options to be a custom query, instead of all();
+            /*
+            'options'   => (function ($query) {
+                    return $query->orderBy('name', 'ASC')->get();
+                }), //  you can use this to fi
+            */
+            
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ]
+                
+        ]);
+
+       $this->crud->field([
+            'name' => 'user_id',
+            'label' => 'Врач',
+            'type' => 'select_from_array',
+            
+            'options'   => DB::table('staff')
+                    ->where('staff.user_id', '!=', '')
+                    ->orderBy('lastname')
+                    ->pluck('lastname', 'user_id')->toArray(),
+                
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ]
+                
+        ]);
+
+    $this->crud->field([
+            'name' => 'weeks',
+            'label' => 'Срок, недель',
+            'type' => 'number',
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ],         
+        ]);
+
+     $this->crud->field([
+            'name' => 'baby_born',
+            'label' => 'Дата родов',
+            'type' => 'month',
+            //'format' => 'l j F Y',
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ],
+            
+        ]);
+    $this->crud->field([
+            'name' => 'date_off',
+            'label' => 'Дата снятия с учета',
+            'type' => 'month',
+            //'format' => 'l j F Y',
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ],  
+        ]);
+
+        $this->crud->field([
+            'name' => 'polis',
+            'label' => 'Полис',
+            'type' => 'number',
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ],         
+        ]);
+
+        $this->crud->field([
+            'name' => 'snils',
+            'label' => 'СНИЛС',
+            'type' => 'number',
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ],         
+        ]);
+
+        $this->crud->field([
+            'name' => 'expect_born',
+            'label' => 'Предполагаемая дата родов',
+            'type' => 'month',
+            'wrapper' => [ 'class' => 'form-group col-md-6' ],  
+        ]);
+
+       //Вывести незакрытые случаи
+        $this->crud->field([
+            'name' => 'opened',
+            'label' => 'Вывести незакрытые случаи',
+            'type' => 'checkbox',
+            'wrapper' => [ 'class' => 'form-group col-md-6' ],  
+        ]); 
+    
+        $this->crud->field([
+            'name' => 'check',
+            'label' => 'Проверка',
+            'type' => 'checkbox',
+            'wrapper' => [ 'class' => 'form-group col-md-6' ],  
+        ]);  
+
+        /*
+        $this->crud->field([
+            'name' => 'date_range',
+            'label' => 'Добавлено',
+            'type' => 'date_range',
+            
+            'wrapper' => [
+                'class' => 'form-group col-md-6'
+            ],
+            
+            //'default' => ['2019-03-28 01:01', '2019-04-05 02:00'], // default values for start_date & end_date
+            'options' => [
+                // options sent to daterangepicker.js
+                'timePicker' => true,
+                'locale' => [
+                    'format' => 'dd-mm-yyyy',
+                    'language' => 'ru',
+                ]
+            ]
+        ]);
+        */
+  
+
     }
 
     /**
@@ -68,6 +217,76 @@ class RegistryCrudController extends CrudController
                      return $query->orderBy('division_id', $columnDirection);//->select('articles.*');
              }
         ]);
+
+            // if you use this method closure, validation is automatically applied.
+        $this->filterQueries(function ($query) {
+    
+            $division_id = request()->input('division_id');
+            $dates = request()->input('date_range');
+            $opened = request()->input('opened');
+            $user_id = request()->input('user_id');
+            $baby_born = request()->input('baby_born');
+            $date_off = request()->input('date_off');
+            $weeks = request()->input('weeks');
+            $expect_born = request()->input('expect_born');
+            $polis = request()->input('polis');
+            $snils = request()->input('snils');
+            $check = request()->input('check');
+            
+            
+
+            if ($division_id) {
+                $query->where('division_id', $division_id);
+            }
+
+            if ($user_id) {
+                $query->where('registry.user_id', $user_id);
+            }
+
+            if ($weeks) {
+                $query->where('weeks', $weeks);
+            }
+
+            if ($polis) {
+                $query->where('polis', 'like', $polis . '%');
+            }
+
+            if ($snils) {
+                $query->where('snils', 'like', $snils . '%');
+            }
+
+            if ($baby_born) {
+                $query->whereMonth('baby_born', Carbon::parse($baby_born)->month);
+                $query->whereYear('baby_born', Carbon::parse($baby_born)->year);
+            }
+
+           if ($date_off) {
+                $query->whereMonth('date_off', Carbon::parse($date_off)->month);
+                $query->whereYear('date_off', Carbon::parse($date_off)->year);
+            }
+
+            if ($expect_born) {
+                $query->whereMonth('expect_born', Carbon::parse($expect_born)->month);
+                $query->whereYear('expect_born', Carbon::parse($expect_born)->year);
+            }
+
+            if ($dates) {
+                $dates = explode('-', $dates);
+                $query->where('created_at',  '>=',  Carbon::parse($dates[0])->format('Y-m-d H:i:s'));
+                $query->where('created_at',  '<=',   Carbon::parse($dates[1])->format('Y-m-d H:i:s'));        
+            }
+
+            if ($opened) {
+                $query->where('baby_born',  '<=',  Carbon::today()->format('Y-m-d'));
+                $query->orwhere('expect_born',  '<=',  Carbon::today()->subDays(50)->format('Y-m-d'));
+            }
+
+            if ($check) {
+                $query->where('check', 1);
+            }
+        });
+
+
         //CRUD::column('division')->label(__('validation.attributes.division'));
         CRUD::column('lastname')->label(__('validation.attributes.lastname'));
         CRUD::column('name')->label(__('validation.attributes.name'));
@@ -80,11 +299,15 @@ class RegistryCrudController extends CrudController
         //CRUD::field('phone')->label('Телефон');
         //CRUD::field('address')->label('Адрес');
 
+        
+       /*
+            CRUD::setAccessCondition('update', function ($entry) {
+                //return $entry->user_id === backpack_user()->id; // Only owner can update
+                return $entry->check ? false : true;
+            });
+        */
+        
 
-        /**
-         * Columns can be defined using the fluent syntax:
-         * - CRUD::column('price')->type('number');
-         */
     }
 
     /**
@@ -112,7 +335,7 @@ class RegistryCrudController extends CrudController
         }
 
         $this->addFields();
-        CRUD::setValidation(['polis' => 'required|digits:16|unique:registry']);
+        CRUD::setValidation(['polis' => 'required|digits:16']);
 
         Registry::creating(function($entry) {
             if (!$entry->user_id) {
@@ -132,6 +355,15 @@ class RegistryCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
+        $entry = $this->crud->getCurrentEntry(); 
+        //print_r($entry);
+        
+        if ($entry->check) {
+
+            //echo 'AAA';
+
+        }
+        
         if (backpack_user()->hasRole('admin')) {
           CRUD::field(
           [
@@ -141,7 +373,24 @@ class RegistryCrudController extends CrudController
                'options'     => User::getDocs(),
           ]);
           CRUD::field('division')->label(__('validation.attributes.division'));
+
+            if(backpack_user()->hasRole('admin') || backpack_user()->hasRole('head_institution')) {
+                CRUD::field(
+                    [
+                        'name'  => 'check',
+                        'label' => 'Проверка', // Table column heading
+                        'type'  => 'checkbox',
+                        //'options'     => User::getDocs(),
+                    ]);
+            } else {
+                if ($entry->check) {
+                    $this->crud->denyAccess('update');
+                }
+            }
+
+            //$this->crud->denyAccess('update');
         }
+
         $this->addFields();
         //$this->setupCreateOperation();
     }
@@ -161,6 +410,8 @@ class RegistryCrudController extends CrudController
       CRUD::field('roddom')->label('Где прошли роды');
       CRUD::field('pregnancy_num')->label('Какая по счету беременность');
       CRUD::field('born_num')->label('Какие по счету роды');
+      CRUD::field('expect_born')->type('date')->label('Предполагаемая дата родов');
+      CRUD::field('snils')->label('СНИЛС');
       CRUD::field('date_off')->type('date')->label('Дата снятия с учета');
       CRUD::field('extra')->label('Дополнительная информация');
 
@@ -174,6 +425,9 @@ class RegistryCrudController extends CrudController
           'weeks' => 'required|numeric|max:41',
           'birthdate' => 'required',
           'address' => 'required',
+          'expect_born' => 'required',
+          'snils' => 'nullable|digits:11', 
+
           //'pregnancy_start' => 'required',
       ]);
     }

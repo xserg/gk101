@@ -35,6 +35,7 @@ class UserCrudController extends CrudController
                 'name'  => 'name',
                 'label' => trans('backpack::permissionmanager.name'),
                 'type'  => 'text',
+                 'orderable'  => true,
             ],
             [
                 'name'  => 'email',
@@ -46,6 +47,15 @@ class UserCrudController extends CrudController
                  'label' => 'ФИО', // Table column heading
                  'type'  => 'model_function',
                  'function_name' => 'getNameWithLink', // the method in your Model
+                 'orderable'  => true,
+                 
+                 'orderLogic' => function ($query, $column, $columnDirection) {
+                        return  $query->leftJoin('staff', 'staff.user_id', '=', 'users.id')
+                        ->where('staff.lastname', '!=', '')
+                        ->select(['users.*', 'staff.name AS staff_name', 'staff.lastname AS staff_lastname'])
+                        ->orderBy('staff_lastname', $columnDirection);
+                  },
+                 
                  'wrapper'   => [
                       // 'element' => 'a', // the element will default to "a" so you can skip it here
                       'href' => function ($crud, $column, $entry, $related_key) {
@@ -55,7 +65,13 @@ class UserCrudController extends CrudController
                       // 'target' => '_blank',
                       // 'class' => 'some-class',
                   ],
-            ],            
+                 'searchLogic' => function ($query, $column, $searchTerm) {
+                    $query->orWhereHas('staff', function ($q) use ($column, $searchTerm) {
+                        $q->where('lastname', 'like', '%'.$searchTerm.'%');
+                        //->orWhereDate('depart_at', '=', date($searchTerm));
+                    });
+                 }                  
+            ],
             [ // n-n relationship (with pivot table)
                 'label'     => trans('backpack::permissionmanager.roles'), // Table column heading
                 'type'      => 'select_multiple',
