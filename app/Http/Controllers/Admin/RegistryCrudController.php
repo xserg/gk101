@@ -9,6 +9,8 @@ use App\Models\Registry;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+
 /**
  * Class RegistryCrudController
  * @package App\Http\Controllers\Admin
@@ -25,15 +27,15 @@ class RegistryCrudController extends CrudController
 
     use \App\Traits\CrudPermissionTrait;
    
-    /*
+    
     use \Winex01\BackpackFilter\Http\Controllers\Operations\ExportOperation;
 
     // Optional: if you dont want to use the entity/export or user/export convention you can override the export route:
     public function exportRoute()
     {
-        return route('test.export');; // if you define a route here then it will use instead of the auto
+        return route('registry@export'); // if you define a route here then it will use instead of the auto
     }
-    */
+    
     
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -51,6 +53,16 @@ class RegistryCrudController extends CrudController
 
     public function setupFilterOperation()
     {
+        $division_id = request()->input('division_id');
+
+        $staff = DB::table('staff')->where('staff.user_id', '!=', '');
+        if ($division_id) {
+            $staff->where('division_id', $division_id);
+        }
+        $staff_arr = $staff->orderBy('lastname')
+                    ->pluck('lastname', 'user_id')
+                    ->toArray();
+
         $this->crud->field([
             'name' => 'division_id',
             'label' => __('validation.attributes.division'),
@@ -80,11 +92,13 @@ class RegistryCrudController extends CrudController
             'label' => 'Врач',
             'type' => 'select_from_array',
             
-            'options'   => DB::table('staff')
+            'options'   => $staff_arr,
+            /*
+            DB::table('staff')
                     ->where('staff.user_id', '!=', '')
                     ->orderBy('lastname')
                     ->pluck('lastname', 'user_id')->toArray(),
-                
+             */   
             'wrapper' => [
                 'class' => 'form-group col-md-6'
             ]
@@ -299,7 +313,8 @@ class RegistryCrudController extends CrudController
         //CRUD::field('phone')->label('Телефон');
         //CRUD::field('address')->label('Адрес');
 
-        
+        CRUD::allowAccess('export');
+
        /*
             CRUD::setAccessCondition('update', function ($entry) {
                 //return $entry->user_id === backpack_user()->id; // Only owner can update
@@ -431,4 +446,74 @@ class RegistryCrudController extends CrudController
           //'pregnancy_start' => 'required',
       ]);
     }
+
+    protected function setupExportRoutes($segment, $routeName, $controller)
+    {
+        Route::get($segment.'/export', [
+            'as'        => $routeName.'.setupExportRoutes',
+            'uses'      => $controller.'@export',
+            'operation' => 'export',
+        ]);
+    }
+
+    public function export()
+    {
+        //echo 'Export...';
+
+        $this->setupListOperation();
+       //$this->crud->query->join(env('DB_DATABASE_MAMAVIP') . '.lectures', 'lectures.id', 'lecture_id');
+
+        if (backpack_user()->hasRole('head_division')) {
+            //$this->crud->query->where('registry.division_id', backpack_user()->staff->division_id);
+        } else if (backpack_user()->hasRole('medic')) {
+            $this->crud->query->where('registry.user_id', $this->crud->getRequest()->user_id);
+        }
+
+        $watched = $this->crud->query->get()->toarray();
+
+        $ret = '';
+        foreach ($watched as $row) {
+            $ret .= $row['division_id'] . ','
+            . $row['lastname'] . ','
+            . $row['name'] . ','
+            . $row['fathername'] . ','
+            . $row['email'] . ','
+            . $row['polis'] . ','
+            . $row['birthdate'] . ','
+            . $row['weeks'] . ','
+            . $row['pregnancy_start'] . ','
+            . $row['baby_born'] . ','
+            . $row['roddom'] . ','
+            . $row['pregnancy_num'] . ','
+            . $row['born_num'] . ','
+            . $row['date_off'] . ','
+            . $row['phone'] . ','
+            . $row['address'] . ','
+            . $row['extra'] . ','
+            . $row['check'] . ','
+            . $row['expect_born'] . ','
+            . $row['snils'] . ','
+            . $row['created_at'] . ','
+            . $row['updated_at'] . "\n";
+        }
+
+        //echo '<pre>';
+        //print_r($watched);
+        //echo $ret;
+        //exit;
+        $title =
+        "Подразделение, Фамилия, Имя, Отчество, Email, Полис, Дата рождения, Срок, Начало, Рождение, Роддом, " 
+        . "Номер беременности, Детей, Дата снятия, Телефон, Адрес, Дополнительно, Проверка, Ожидаемая дата, СНИЛС, Дата добавления, Дата изменения\n";
+
+
+        if ($ret) {
+            header("Content-Type: text/csv");
+            header("Content-Disposition: attachment; filename=export_file.csv");
+            echo $title . $ret;
+        } else {
+          echo 'no data';
+        }
+        exit;
+
+    }    
 }
