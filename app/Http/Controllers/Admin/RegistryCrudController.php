@@ -55,7 +55,7 @@ class RegistryCrudController extends CrudController
     {
         $division_id = request()->input('division_id');
 
-        $staff = DB::table('staff')->where('staff.user_id', '!=', '');
+        $staff = DB::table('staff')->distinct()->where('staff.user_id', '!=', '');
         if ($division_id) {
             $staff->where('division_id', $division_id);
         }
@@ -469,8 +469,17 @@ class RegistryCrudController extends CrudController
             $this->crud->query->where('registry.user_id', $this->crud->getRequest()->user_id);
         }
 
-        $watched = $this->crud->query->get()->toarray();
+        $title =  "Подразделение, Фамилия, Имя, Отчество, Email, Полис, Дата рождения, Срок, Начало, Рождение, Роддом, " 
+        . "Номер беременности, Детей, Дата снятия, Телефон, Адрес, Дополнительно, Проверка, Ожидаемая дата, СНИЛС, Дата добавления, Дата изменения\n";
+    
 
+        $watched = $this->crud->query->select(
+            [
+                'division_id', 'lastname', 'name', 'fathername', 'email', 'polis', 'birthdate', 'weeks', 'pregnancy_start', 'baby_born', 
+                'roddom', 'pregnancy_num','born_num', 'date_off', 'phone', 'address', 'extra', 'check', 'expect_born', 'snils', 'created_at', 'updated_at'
+            ]
+        )->get()->toarray();
+        /*
         $ret = '';
         foreach ($watched as $row) {
             $ret .= $row['division_id'] . ','
@@ -496,23 +505,25 @@ class RegistryCrudController extends CrudController
             . $row['created_at'] . ','
             . $row['updated_at'] . "\n";
         }
-
-        //echo '<pre>';
+        */
+        //cho '<pre>';
         //print_r($watched);
-        //echo $ret;
         //exit;
-        $title =
-        "Подразделение, Фамилия, Имя, Отчество, Email, Полис, Дата рождения, Срок, Начало, Рождение, Роддом, " 
-        . "Номер беременности, Детей, Дата снятия, Телефон, Адрес, Дополнительно, Проверка, Ожидаемая дата, СНИЛС, Дата добавления, Дата изменения\n";
+  
 
-
-        if ($ret) {
+        if ($watched) {
             header("Content-Type: text/csv");
             header("Content-Disposition: attachment; filename=export_file.csv");
-            echo $title . $ret;
+            echo $title;
         } else {
           echo 'no data';
         }
+        $fp = fopen('php://output', 'w');
+        // Write each row to the CSV file
+        foreach ($watched as $row) {
+            fputcsv($fp, $row);
+        }
+        fclose($fp);
         exit;
 
     }    
