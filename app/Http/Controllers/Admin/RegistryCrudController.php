@@ -463,50 +463,28 @@ class RegistryCrudController extends CrudController
         $this->setupListOperation();
        //$this->crud->query->join(env('DB_DATABASE_MAMAVIP') . '.lectures', 'lectures.id', 'lecture_id');
 
+
+        
         if (backpack_user()->hasRole('head_division')) {
-            //$this->crud->query->where('registry.division_id', backpack_user()->staff->division_id);
+            $this->crud->query->where('registry.division_id', backpack_user()->staff->division_id);
         } else if (backpack_user()->hasRole('medic')) {
             $this->crud->query->where('registry.user_id', $this->crud->getRequest()->user_id);
+        } else if (backpack_user()->hasRole('admin')) {
+            //
         }
 
         $title =  "Подразделение, Фамилия, Имя, Отчество, Email, Полис, Дата рождения, Срок, Начало, Рождение, Роддом, " 
         . "Номер беременности, Детей, Дата снятия, Телефон, Адрес, Дополнительно, Проверка, Ожидаемая дата, СНИЛС, Дата добавления, Дата изменения\n";
     
 
-        $watched = $this->crud->query->select(
+        $watched = \App\Models\Registry::select(
             [
-                'division_id', 'lastname', 'name', 'fathername', 'email', 'polis', 'birthdate', 'weeks', 'pregnancy_start', 'baby_born', 
+                 'divisions.name as division_name', 'lastname', 'registry.name', 'fathername', 'email', 'polis', 'birthdate', 'weeks', 'pregnancy_start', 'baby_born', 
                 'roddom', 'pregnancy_num','born_num', 'date_off', 'phone', 'address', 'extra', 'check', 'expect_born', 'snils', 'created_at', 'updated_at'
             ]
-        )->get()->toarray();
-        /*
-        $ret = '';
-        foreach ($watched as $row) {
-            $ret .= $row['division_id'] . ','
-            . $row['lastname'] . ','
-            . $row['name'] . ','
-            . $row['fathername'] . ','
-            . $row['email'] . ','
-            . $row['polis'] . ','
-            . $row['birthdate'] . ','
-            . $row['weeks'] . ','
-            . $row['pregnancy_start'] . ','
-            . $row['baby_born'] . ','
-            . $row['roddom'] . ','
-            . $row['pregnancy_num'] . ','
-            . $row['born_num'] . ','
-            . $row['date_off'] . ','
-            . $row['phone'] . ','
-            . $row['address'] . ','
-            . $row['extra'] . ','
-            . $row['check'] . ','
-            . $row['expect_born'] . ','
-            . $row['snils'] . ','
-            . $row['created_at'] . ','
-            . $row['updated_at'] . "\n";
-        }
-        */
-        //cho '<pre>';
+        )->join('divisions', 'division_id', '=', 'divisions.id')->get()->toarray();
+     
+        //echo '<pre>';
         //print_r($watched);
         //exit;
   
