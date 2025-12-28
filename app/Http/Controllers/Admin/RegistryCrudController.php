@@ -58,8 +58,8 @@ class RegistryCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Registry::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/registry');
-        //CRUD::setEntityNameStrings('беременную', 'Реестр беременных');
-        CRUD::setEntityNameStrings('registry', 'Реестр беременных');
+        CRUD::setEntityNameStrings('', 'Реестр беременных');
+        //CRUD::setEntityNameStrings('registry', 'Реестр беременных');
         $this->setAccessUsingPermissions();
         $this->crud->allowAccess('filters'); // Allow access
     }
