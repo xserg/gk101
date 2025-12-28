@@ -7,9 +7,12 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Models\Registry;
 use App\Models\User;
+use App\Models\Staff;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Exports\RegistryExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 /**
  * Class RegistryCrudController
@@ -29,14 +32,23 @@ class RegistryCrudController extends CrudController
    
     
     use \Winex01\BackpackFilter\Http\Controllers\Operations\ExportOperation;
-
+       
     // Optional: if you dont want to use the entity/export or user/export convention you can override the export route:
+
+    /*    
     public function exportRoute()
     {
         return route('registry@export'); // if you define a route here then it will use instead of the auto
     }
+    */
+
+    public function export() 
+    {   
+        $this->setupListOperation();
+        return Excel::download(new RegistryExport($this->crud->query), 'registry' . '-' . now() . '.xlsx');
+    }
     
-    
+
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -46,7 +58,8 @@ class RegistryCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Registry::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/registry');
-        CRUD::setEntityNameStrings('беременную', 'Реестр беременных');
+        //CRUD::setEntityNameStrings('беременную', 'Реестр беременных');
+        CRUD::setEntityNameStrings('registry', 'Реестр беременных');
         $this->setAccessUsingPermissions();
         $this->crud->allowAccess('filters'); // Allow access
     }
@@ -54,6 +67,24 @@ class RegistryCrudController extends CrudController
     public function setupFilterOperation()
     {
         $division_id = request()->input('division_id');
+
+        $divisions = DB::table('divisions');
+
+        $user = backpack_user();
+        $staff_user = Staff::where('user_id', $user->id)->first();
+        
+        //echo '<pre>';
+        //print_r($staff_user->toArray());
+        if($user->hasRole('head_division')) {
+            if (isset($staff_user->division_id)) {
+                //CRUD::addClause('where', 'division_id', '=', $staff_user->division_id);
+                $divisions->where('id', $staff_user->division_id);
+                $division_id = $staff_user->division_id;
+            }
+        }
+        
+        $divisions_arr =  $divisions->pluck('name', 'id')->toArray();
+;
 
         $staff = DB::table('staff')->distinct()->where('staff.user_id', '!=', '');
         if ($division_id) {
@@ -63,23 +94,21 @@ class RegistryCrudController extends CrudController
                     ->pluck('lastname', 'user_id')
                     ->toArray();
 
+
+
         $this->crud->field([
             'name' => 'division_id',
             'label' => __('validation.attributes.division'),
-            'type' => 'select',
+            'type' => 'select_from_array',
             
-            'entity'    => 'division',
-
+            //'entity'    => 'division',
             // optional - manually specify the related model and attribute
-            'model'     => "App\Models\Division", // related model
-            'attribute' => 'name', // foreign key attribute that is shown to user
-
+            //'model'     => "App\Models\Division", // related model
+            //'attribute' => 'name', // foreign key attribute that is shown to user
             // optional - force the related options to be a custom query, instead of all();
-            /*
-            'options'   => (function ($query) {
-                    return $query->orderBy('name', 'ASC')->get();
-                }), //  you can use this to fi
-            */
+            
+            'options'   => $divisions_arr,
+            
             
             'wrapper' => [
                 'class' => 'form-group col-md-6'
@@ -447,6 +476,7 @@ class RegistryCrudController extends CrudController
       ]);
     }
 
+    /*
     protected function setupExportRoutes($segment, $routeName, $controller)
     {
         Route::get($segment.'/export', [
@@ -455,8 +485,8 @@ class RegistryCrudController extends CrudController
             'operation' => 'export',
         ]);
     }
-
-    public function export()
+    */
+    public function export_csv()
     {
         //echo 'Export...';
 

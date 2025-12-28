@@ -37,5 +37,5 @@ Route::group([
     Route::crud('registry', 'RegistryCrudController');
     Route::crud('reglog', 'ReglogCrudController');
     Route::crud('watched', 'WatchedCrudController');
-    Route::get('registry/export', 'RegistryCrudController@export')->name('registry@export');
+    //Route::get('registry/export', 'RegistryCrudController@export')->name('registry@export');
 }); // this should be the absolute last line of this file
