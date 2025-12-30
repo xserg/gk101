@@ -22,18 +22,20 @@ class RegistryExport implements FromQuery, WithHeadings
     {
         return $this->registry->select(
             [
-                'divisions.name as division_name', 'lastname', 'registry.name', 'fathername', 
+                'divisions.name as division_name', 'staff.lastname as staff_lastname', 
+                'registry.lastname', 'registry.name', 'registry.fathername', 
                 'email', 'polis', 'birthdate', 'weeks', 'pregnancy_start', 'baby_born', 
                 'roddom', 'pregnancy_num','born_num', 'date_off', 'phone', 'address', 
-                'extra', 'check', 'expect_born', 'snils', 'created_at',
+                'extra', 'check', 'expect_born', 'snils', 'registry.created_at',
             ]
-        )->join('divisions', 'division_id', '=', 'divisions.id');
+        )->join('divisions', 'division_id', '=', 'divisions.id')
+        ->leftjoin('staff', 'registry.user_id', '=', 'staff.user_id');
     }
 
     public function headings(): array
     {
         return [
-            'Подразделение', 'Фамилия', 'Имя', 'Отчество', 'Email', 'Полис', 
+            'Подразделение', 'Врач',  'Фамилия', 'Имя', 'Отчество', 'Email', 'Полис', 
             'Дата рождения', 'Срок', 'Начало', 'Рождение', 'Роддом',  
             'Номер беременности', 'Детей', 'Дата снятия', 'Телефон', 'Адрес', 
             'Дополнительно', 'Проверка', 'Ожидаемая дата', 

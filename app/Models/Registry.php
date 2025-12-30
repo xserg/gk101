@@ -29,8 +29,15 @@ class Registry extends Model
     // protected $fillable = [];
     // protected $hidden = [];
     protected $casts = [
-        'pregnancy_start' => 'date'
+        'birthdate' => 'date:d.m.Y',
+        'baby_born' => 'date:d.m.Y',
+        'pregnancy_start' => 'date:d.m.Y',
+        'date_off' => 'date:d.m.Y',
+        'expect_born' => 'date:d.m.Y',
+        'created_at' => 'date:d.m.Y',
     ];
+
+
 
     /*
     |--------------------------------------------------------------------------
