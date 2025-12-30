@@ -279,7 +279,7 @@ class RegistryCrudController extends CrudController
             
 
             if ($division_id) {
-                $query->where('division_id', $division_id);
+                $query->where('registry.division_id', $division_id);
             }
 
             if ($user_id) {
