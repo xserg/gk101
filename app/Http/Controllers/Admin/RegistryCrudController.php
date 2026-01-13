@@ -84,6 +84,7 @@ class RegistryCrudController extends CrudController
         }
         
         $divisions_arr =  $divisions->pluck('name', 'id')->toArray();
+        //print_r( $divisions_arr);
 ;
 
         $staff = DB::table('staff')->distinct()->where('staff.user_id', '!=', '');
@@ -108,7 +109,7 @@ class RegistryCrudController extends CrudController
             // optional - force the related options to be a custom query, instead of all();
             
             'options'   => $divisions_arr,
-            
+            //'allows_null' => false,
             
             'wrapper' => [
                 'class' => 'form-group col-md-6'
@@ -320,8 +321,10 @@ class RegistryCrudController extends CrudController
             }
 
             if ($opened) {
-                $query->where('baby_born',  '<=',  Carbon::today()->format('Y-m-d'));
-                $query->orwhere('expect_born',  '<=',  Carbon::today()->subDays(50)->format('Y-m-d'));
+                //$query->where('baby_born',  '<=',  Carbon::today()->format('Y-m-d'));
+                //$query->where('expect_born',  '<=',  Carbon::today()->subDays(50)->format('Y-m-d'));
+                $query->whereRaw('(baby_born <= "' . Carbon::today()->format('Y-m-d') 
+                . '" OR expect_born <= "' . Carbon::today()->subDays(50)->format('Y-m-d') . '")');
             }
 
             if ($check) {
