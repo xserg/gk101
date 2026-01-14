@@ -48,7 +48,9 @@ trait CrudPermissionTrait
         if($user->hasRole('head_institution')) {
             if ($value = $user->staff->division['institution_id']) {
                 $divisions = Division::where('institution_id', $value)->pluck('id')->toarray();
-                if ($table != 'divisions') {
+                if ($table == 'registry') {
+                    CRUD::addClause('wherein', $table . '.division_id', $divisions);
+                } elseif ($table != 'divisions') {
                     CRUD::addClause('wherein', 'division_id', $divisions);
                 } else {
                     CRUD::addClause('where', 'institution_id', $value);
@@ -58,7 +60,9 @@ trait CrudPermissionTrait
 
             if ($value = $user->staff['division_group']) {
                 $divisions = Division::where('group_id', $value)->pluck('id')->toarray();
-                if ($table != 'divisions') {
+                if ($table == 'registry') {
+                    CRUD::addClause('wherein', $table . '.division_id', $divisions);
+                } elseif ($table != 'divisions') {
                     CRUD::addClause('wherein', 'division_id', $divisions);
                 } else {
                     CRUD::addClause('where', 'group_id', $value);
@@ -68,8 +72,10 @@ trait CrudPermissionTrait
         } else if($user->hasRole('head_division')) {
 
             if ($value = $user->staff['division_id']) {
-              if ($table != 'divisions') {
-                  CRUD::addClause('where', 'division_id', $value);
+              if ($table == 'registry') {
+                  CRUD::addClause('where', $table . '.division_id', $value);
+              } elseif ($table != 'divisions') {
+                  CRUD::addClause('where', 'division_id', $value);  
               } else {
                   CRUD::addClause('where', 'id', $value);
               }
@@ -81,7 +87,7 @@ trait CrudPermissionTrait
                 return;
             }
             if ($table == 'registry') {
-                CRUD::addClause('where', 'user_id', $user->id);
+                CRUD::addClause('where', 'registry.user_id', $user->id);
             } else if ($table == 'reglog') {
                 CRUD::addClause('where', 'doc_id', $user->id);
             } else if ($table == 'user_to_watched_lectures') {
