@@ -438,6 +438,18 @@ class RegistryCrudController extends CrudController
             //$this->crud->denyAccess('update');
         }
 
+        if (backpack_user()->hasRole('head_division')) {
+          CRUD::field(
+          [
+               'name'  => 'user_id',
+               'label' => 'Врач', // Table column heading
+               'type'  => 'select_from_array',
+               'options'     => User::getDocs(
+                 backpack_user()->staff->division_id
+               ),
+          ]);
+        }        
+
         $this->addFields();
         //$this->setupCreateOperation();
     }
