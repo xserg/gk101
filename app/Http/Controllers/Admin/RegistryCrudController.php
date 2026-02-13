@@ -368,7 +368,9 @@ class RegistryCrudController extends CrudController
         //CRUD::setFromDb(); // set fields from db columns.
         //$user = backpack_user();
         //CRUD::field('division')->label(__('validation.attributes.division'))->value($user->staff->division_id);
-
+        if (backpack_user()->hasRole('head_institution')) {
+            CRUD::field('division')->label(__('validation.attributes.division'));
+        }
         if (backpack_user()->hasRole('head_division')) {
           CRUD::field(
           [
@@ -411,7 +413,7 @@ class RegistryCrudController extends CrudController
 
         }
         
-        if (backpack_user()->hasRole('admin')) {
+        if (backpack_user()->hasRole('admin') || backpack_user()->hasRole('head_institution')) {
           CRUD::field(
           [
                'name'  => 'user_id',
@@ -420,24 +422,25 @@ class RegistryCrudController extends CrudController
                'options'     => User::getDocs(),
           ]);
           CRUD::field('division')->label(__('validation.attributes.division'));
+  
+            CRUD::field(
+            [
+                'name'  => 'check',
+                'label' => 'Проверка', // Table column heading
+                'type'  => 'checkbox',
+                //'options'     => User::getDocs(),
+            ]);
+            
 
-            if(backpack_user()->hasRole('admin') || backpack_user()->hasRole('head_institution')) {
-                CRUD::field(
-                    [
-                        'name'  => 'check',
-                        'label' => 'Проверка', // Table column heading
-                        'type'  => 'checkbox',
-                        //'options'     => User::getDocs(),
-                    ]);
-            } else {
+            //$this->crud->denyAccess('update');
+        }  else {
                 if ($entry->check) {
                     $this->crud->denyAccess('update');
                 }
-            }
-
-            //$this->crud->denyAccess('update');
         }
 
+
+        
         if (backpack_user()->hasRole('head_division')) {
           CRUD::field(
           [
@@ -449,6 +452,8 @@ class RegistryCrudController extends CrudController
                ),
           ]);
         }        
+
+
 
         $this->addFields();
         //$this->setupCreateOperation();
