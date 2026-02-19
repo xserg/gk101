@@ -78,6 +78,7 @@ class Reglog extends Model
         ->where('user_id', $this->doc_id)
         //->whereraw('MONTH(created_at)='.$this->month)
         //->whereraw('YEAR(created_at)='.$this->year)
+        ->whereNull('date_off')
         ->first();
         return $res;
     }

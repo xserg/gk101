@@ -44,7 +44,9 @@
 @endif
 @if(backpack_user()->can('menu.registry') || backpack_user()->hasRole('admin'))
 <x-backpack::menu-dropdown title="Беременные" icon="la la-users">
-    <x-backpack::menu-dropdown-item title="Реестр беременных" icon="la la-user" :link="backpack_url('registry')" />
+    <x-backpack::menu-dropdown-item title="Реестр (открытые)" icon="la la-user" :link="backpack_url('registry?closed=0')" />
+    <x-backpack::menu-dropdown-item title="Закрытые" icon="la la-user" :link="backpack_url('registry?closed=1')" />
+    <x-backpack::menu-dropdown-item title="Все" icon="la la-user" :link="backpack_url('registry?closed=3')" />
     <x-backpack::menu-dropdown-item title="Целевые значения" icon="la la-question" :link="backpack_url('reglog')" />
     <x-backpack::menu-dropdown-item title="Школа матерей" icon="la la-question" :link="backpack_url('watched')" />
 </x-backpack::menu-dropdown>

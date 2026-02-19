@@ -190,20 +190,21 @@ class RegistryCrudController extends CrudController
         ]);
 
        //Вывести незакрытые случаи
+       /*
         $this->crud->field([
             'name' => 'opened',
             'label' => 'Вывести незакрытые случаи',
             'type' => 'checkbox',
             'wrapper' => [ 'class' => 'form-group col-md-6' ],  
         ]); 
-    
+        */
         $this->crud->field([
             'name' => 'check',
             'label' => 'Проверка',
             'type' => 'checkbox',
             'wrapper' => [ 'class' => 'form-group col-md-6' ],  
         ]);  
-
+        
         /*
         $this->crud->field([
             'name' => 'date_range',
@@ -239,6 +240,16 @@ class RegistryCrudController extends CrudController
     {
         //CRUD::setFromDb(); // set columns from db columns.
 
+        if (request()->get('closed') == 1) {
+            $this->crud->query = $this->crud->query->where('date_off', '!=', '');
+            CRUD::setEntityNameStrings('', 'Реестр беременных - Закрытые');
+        } else if (request()->get('closed') == 0) {
+            CRUD::setEntityNameStrings('', 'Реестр беременных - Открытые');
+            $this->crud->query = $this->crud->query->where('date_off', '=', null);
+        } else {
+
+        }
+
         //$this->crud->addColumn(
         CRUD::column(
         [
@@ -263,7 +274,8 @@ class RegistryCrudController extends CrudController
         ]);
 
             // if you use this method closure, validation is automatically applied.
-        $this->filterQueries(function ($query) {
+
+            $this->filterQueries(function ($query) {
     
             $division_id = request()->input('division_id');
             $dates = request()->input('date_range');
@@ -369,9 +381,17 @@ class RegistryCrudController extends CrudController
         //$user = backpack_user();
         //CRUD::field('division')->label(__('validation.attributes.division'))->value($user->staff->division_id);
         if (backpack_user()->hasRole('head_institution')) {
-            CRUD::field('division')->label(__('validation.attributes.division'));
+        CRUD::field(
+          [
+               'name'  => 'user_id',
+               'label' => 'Врач', // Table column heading
+               'type'  => 'select_from_array',
+               'options'     => User::getAllDocs(),
+          ]);    
+        CRUD::field('division')->label(__('validation.attributes.division'));
         }
         if (backpack_user()->hasRole('head_division')) {
+
           CRUD::field(
           [
                'name'  => 'user_id',
@@ -419,7 +439,7 @@ class RegistryCrudController extends CrudController
                'name'  => 'user_id',
                'label' => 'Врач', // Table column heading
                'type'  => 'select_from_array',
-               'options'     => User::getDocs(),
+               'options'     => User::getAllDocs(),
           ]);
           CRUD::field('division')->label(__('validation.attributes.division'));
   

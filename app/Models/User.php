@@ -84,4 +84,16 @@ class User extends Authenticatable
         }
         return $ret;
     }
+
+    public static function getAllDocs()
+    {
+        $users = User::role(['medic', 'head_division', 'head_institution'])->get();
+
+        foreach ($users as $user) {
+          if ($user->staff->lastname) {
+            $ret[$user->id] = self::getListName($user);
+          } 
+        }
+        return $ret;
+    }
 }
