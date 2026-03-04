@@ -190,22 +190,28 @@ class RegistryCrudController extends CrudController
         ]);
 
        //Вывести незакрытые случаи
-       /*
+       
         $this->crud->field([
-            'name' => 'opened',
-            'label' => 'Вывести незакрытые случаи',
-            'type' => 'checkbox',
-            'wrapper' => [ 'class' => 'form-group col-md-6' ],  
+            'name' => 'closed',
+            'label' => 'Статус',
+            'type' => 'select_from_array',
+            'options' => [ '0' => 'Открытые', '1' => 'Закрытые', '3' => 'Все' ],
+             'wrapper' => [ 'class' => 'form-group col-md-6' ],    
         ]); 
-        */
+       
         $this->crud->field([
             'name' => 'check',
             'label' => 'Проверка',
             'type' => 'checkbox',
-            'wrapper' => [ 'class' => 'form-group col-md-6' ],  
+            //'wrapper' => [ 'class' => 'form-group col-md-6' ],  
+        ]);  
+        /*
+        $this->crud->field([
+            'name' => 'closed',
+            'label' => 'Открытые',
+            'type' => 'hidden',  
         ]);  
         
-        /*
         $this->crud->field([
             'name' => 'date_range',
             'label' => 'Добавлено',
