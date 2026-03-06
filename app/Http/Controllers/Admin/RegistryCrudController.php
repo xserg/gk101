@@ -199,13 +199,22 @@ class RegistryCrudController extends CrudController
              'wrapper' => [ 'class' => 'form-group col-md-6' ],    
         ]); 
        
+         $this->crud->field([
+            'name' => 'check',
+            'label' => 'Проверка',
+            'type' => 'select_from_array',
+            'options' => [ '2' => 'Не проверенные', '1' => 'Проверенные', '3' => 'Все' ],
+             'wrapper' => [ 'class' => 'form-group col-md-6' ],    
+        ]); 
+
+        /*
         $this->crud->field([
             'name' => 'check',
             'label' => 'Проверка',
             'type' => 'checkbox',
             //'wrapper' => [ 'class' => 'form-group col-md-6' ],  
         ]);  
-        /*
+        
         $this->crud->field([
             'name' => 'closed',
             'label' => 'Открытые',
@@ -346,7 +355,14 @@ class RegistryCrudController extends CrudController
             }
 
             if ($check) {
-                $query->where('check', 1);
+                //$query->where('check', 1);
+            }
+            if ($check == 1) {
+                $this->crud->query = $this->crud->query->where('check', 1);
+            } else if ($check == 2) {           
+                $this->crud->query = $this->crud->query->whereRaw('(isnull(`check`) or `check` = 0)');
+            } else {
+
             }
         });
 
